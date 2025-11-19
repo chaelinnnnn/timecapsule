@@ -82,6 +82,7 @@
             padding: 15px 25px;
             border-radius: 50px;
             backdrop-filter: blur(10px);
+            z-index: 200;
         }
         
         .control-btn {
@@ -301,13 +302,13 @@
     <div id="empty-state" class="empty-state" style="display: none;">
         <h2>No Time Capsules Yet</h2>
         <p>Create your first time capsule to start your collection</p>
-        <button onclick="window.location.href='timecapsule-constrained-movement.html'">Create Capsule</button>
+        <button onclick="window.location.href='index.html'">Create Capsule</button>
     </div>
 
     <div class="controls">
         <button class="control-btn" id="rotate-left">← Rotate</button>
         <button class="control-btn" id="rotate-right">Rotate →</button>
-        <button class="control-btn primary" onclick="window.location.href='timecapsule-constrained-movement.html'">+ New Capsule</button>
+        <button class="control-btn primary" onclick="window.location.href='index.html'">+ New Capsule</button>
     </div>
 
     <div class="capsule-info-panel" id="info-panel">
