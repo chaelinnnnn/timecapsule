@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Capsule Gallery</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background: #2a2a2a;
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        .header {
+            color: #00ff88;
+            margin-bottom: 30px;
+            font-size: 32px;
+        }
+        .capsule-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .capsule-card {
+            background: #1a1a1a;
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid #333;
+            text-align: left;
+            transition: border-color 0.3s;
+        }
+        .capsule-card:hover {
+            border-color: #00ff88;
+        }
+        .capsule-card h3 {
+            color: white;
+            margin-bottom: 10px;
+            font-size: 20px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 5px;
+        }
+        .status {
+            font-weight: 700;
+            padding: 5px 10px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        .status.open {
+            background: #ff4444;
+            color: white;
+        }
+        .status.sealed {
+            background: #00ff88;
+            color: #000;
+        }
+        .detail {
+            font-size: 14px;
+            color: #ccc;
+            margin-top: 5px;
+        }
+        .back-button {
+            margin-top: 30px;
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">⏳ My Time Capsule Gallery</div>
+    <div id="capsule-container" class="capsule-list">
+        </div>
+    <button class="back-button" onclick="location.href='timecapsule.html'">
+        ← Create New Capsule
+    </button>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', loadCapsules);
+
+        function loadCapsules() {
+            const container = document.getElementById('capsule-container');
+            const capsules = JSON.parse(localStorage.getItem('timeCapsules') || '[]');
+            const now = new Date();
+            container.innerHTML = ''; // Clear existing content
+
+            if (capsules.length === 0) {
+                container.innerHTML = '<p style="color: #888;">No capsules buried yet. Go create one!</p>';
+                return;
+            }
+
+            capsules.forEach(capsule => {
+                const openDate = new Date(capsule.openDate);
+                const isOpened = openDate <= now;
+                const statusClass = isOpened ? 'open' : 'sealed';
+                const statusText = isOpened ? 'READY TO OPEN' : 'SEALED';
+                const openDateDisplay = openDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+                
+                // Parts and content summary
+                const totalParts = capsule.parts.length;
+                const partsWithContent = capsule.parts.filter(p => p.contentData && p.contentData.content).length;
+
+                const card = document.createElement('div');
+                card.className = 'capsule-card';
+                card.innerHTML = `
+                    <span class="status ${statusClass}">${statusText}</span>
+                    <h3>${capsule.name}</h3>
+                    <div class="detail">Open Date: <strong style="color: ${isOpened ? '#ff4444' : '#00ff88'}">${openDateDisplay}</strong></div>
+                    <div class="detail">Total Parts: ${totalParts}</div>
+                    <div class="detail">Content Items: ${partsWithContent}</div>
+                    <div class="detail" style="margin-top: 15px;">
+                        <a href="timecapsule-view.html?id=${capsule.id}" style="color: #667eea; text-decoration: none;">View Summary / Open Capsule →</a>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+    </script>
+</body>
+</html>
