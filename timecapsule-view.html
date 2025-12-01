@@ -78,6 +78,14 @@
             border-radius: 8px;
             cursor: pointer;
         }
+        .error-message {
+            color: yellow;
+            font-weight: bold;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #444;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
@@ -120,11 +128,7 @@
 
         // --- 1. CONFIGURATION AND DATA (From Builder) ---
 
-        const allSvgPaths = [ /* ... (SVG data from timecapsule.html) ... */
-            // 여기에 timecapsule.html에 있는 24개의 SVG 데이터를 그대로 복사/붙여넣으세요.
-            // (길이가 너무 길어 여기에 다시 포함하지 않고, 사용자가 직접 복사해야 합니다.)
-            // { id: 1, viewBox: "...", path: "..." },
-            // ...
+        const allSvgPaths = [ /* ... (24 SVG data entries) ... */
             { id: 1, viewBox: "0 0 120.29 776.67", path: "M58.61,6.74c8.05,7.09,17.3,23.07,20.5,40.22,1.99,9.63,1.77,22.69-2.45,28.51-3.77,5.36-8,5.1-13.41,8.21-10.95,5.19-21.63,26.6-27.59,47.98-3.49,11.94-6.69,23.89-8.65,40.49-3.35,26.91-1.32,60.97,5.77,84.58,17.15,58.2,48.07,53.43,67.98,90.05,8.87,16.21,17.65,44.78,12.44,72.5-4.75,29.19-22.12,41.67-21.96,75.47.04,20.01,5.73,38.68,10.19,55.34,7.97,28.28,14.31,60.57,17.25,93.73,3.32,33.16,1.83,66.22-7.44,92.11-7.61,22.29-18.57,40.78-31.03,40.76-21.79.54-41-45.05-43-95.42-2.5-40.5,2.74-81.86.79-122.49-2.27-49.21-17.85-88.33-22.25-136.52-2.36-22.07-2.58-45.03-1.33-67.54,2.17-34.47,3.97-65.2-2.44-98.14C1.24,202.71-6.87,168.93,8.54,113.28c3.73-13.56,6.68-27.87,7.39-44.13,1.08-19.91,1.74-43.81,9.22-56.66C34.02-3.23,48.02-2.82,58.41,6.56l.19.17Z" },
             { id: 2, viewBox: "0 0 192.44 631.71", path: "M118.87,12.14c13.81-16.31,33.01-3.54,41.48,20.21,20.36,57.22-12.86,145.95-12.96,213.31-.25,11.48.21,22.89,1.52,34,3.5,29.97,12.72,55.83,21.46,81.8,14.67,41.86,29.34,91.95,18.08,142.1-7.76,37.47-30.12,55.37-43.14,16.41-4.18-13-5.59-28.76-5.59-43.76,1.09-51.13,9.31-90.7-14.19-130.15-15.06-26.51-39.45-32.76-57.36-17.78-19.68,15.12-33.87,49.35-30.58,84.81,1.62,18.85,8.62,36.38,16.83,48.88,8.28,13.15,18.14,23.95,23.15,42.33,6.32,23.74,5.66,55.6,16.43,76.52,3.01,6.39,6.92,11.72,10.62,16.48,3.62,5.31,9.44,10.61,9.37,18.44-1.09,9.93-10.07,13.14-16.82,15.04-18.87,4.19-39.71-5.99-55.83-24.22C-2.82,557.45-8.7,450.45,10.06,366.55c6.16-29.62,15.97-57.13,27.51-80.37,5.46-11.29,11.4-22.48,16.32-33.72,16.27-34.42,17.92-78.71,6.46-118.93-10.71-39.89-35.18-56.79-41.82-95.88-2.06-13.13.07-29.24,6.97-35.58,18.14-12.23,24.16,32.83,37.62,50,5.28,7.38,11.98,11.57,18.63,10.3,17.46-2.85,23.97-34.82,36.97-50.07l.15-.17Z" },
             { id: 3, viewBox: "0 0 199.85 661.11", path: "M86.86,169.39c24.94,61.78,107.84,157.99,95.51,246.42-9.31,54.67-42.28,75.3-67.75,95.49-15.89,12.35-31.78,17.38-48.39,12.26-11.72-3.23-23.38-8.23-35.18-2.71-12.65,5.5-24.55,22.1-28.89,46-7.34,39.05,4.49,94.18,28.29,94.27,17.34.23,31.95-22.41,45.32-41.4,9.2-13.32,18.41-26.52,27.99-38.8,8.06-10.37,16.38-19.95,25-28.52,15.65-15.87,33.01-28.02,46.65-48.92,27.42-40.35,29.81-115.68,16.82-172.92-18.11-78.77-44.02-100.45-41.4-199.18-.21-32.59,7.11-113.4-10.54-129.24-10.59-7.62-19.76,6.88-29.83,16.89-5.63,6.08-11.49,11.32-17.39,16.31-40.1,30.19-28.13,82.9-6.31,133.8l.11.25Z" },
@@ -157,6 +161,21 @@
             { base: 0xa18cd1, rim: 0xfbc2eb }, { base: 0xfa8bff, rim: 0x2bd2ff }, { base: 0xff9a56, rim: 0xff6a88 }, 
             { base: 0xa8edea, rim: 0xfed6e3 }, { base: 0xffecd2, rim: 0xfcb69f }, { base: 0x667eea, rim: 0x764ba2 }
         ];
+        
+        // --- TEST CAPSULE DATA (For debugging when URL ID fails) ---
+        // This array simulates the data structure saved when you first created a capsule with 4 parts.
+        const TEST_CAPSULE = {
+            id: 'test-capsule-000',
+            name: '3D Demo Capsule (Fallback)',
+            openDate: new Date().toISOString(), // Already open for testing
+            createdDate: new Date().toISOString(),
+            parts: [
+                { svgId: 21, position: { x: 0, y: 0, z: 10 }, rotation: { x: 0.5, y: 0, z: 0 }, scale: { x: 1.5, y: 1.5, z: 1.5 }, contentData: { type: 'text', content: 'Fallback Test Content: Circle' } },
+                { svgId: 22, position: { x: 50, y: 0, z: -10 }, rotation: { x: 0, y: 1.5, z: 0 }, scale: { x: 1, y: 1, z: 1 }, contentData: { type: 'text', content: 'Fallback Test Content: Square' } },
+                { svgId: 23, position: { x: -50, y: 0, z: 0 }, rotation: { x: 0, y: 0.5, z: 0 }, scale: { x: 1.2, y: 1.2, z: 1.2 }, contentData: { type: 'text', content: 'Fallback Test Content: Triangle' } },
+                { svgId: 6, position: { x: 0, y: 50, z: 0 }, rotation: { x: 1.0, y: 1.0, z: 1.0 }, scale: { x: 0.5, y: 0.5, z: 0.5 }, contentData: { type: 'text', content: 'Fallback Test Content: Custom Shape' } }
+            ]
+        };
 
         // --- 2. HELPER FUNCTIONS ---
 
@@ -167,7 +186,7 @@
             return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
         }
 
-        function reconstructPart(partData, svgData, color) {
+        function reconstructPart(partData, svgData, color, scene) {
             const canvas = document.createElement('canvas');
             canvas.width = 512;
             canvas.height = 512;
@@ -220,10 +239,10 @@
 
         const canvas = document.getElementById('canvas-3d-view');
         const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x2a2a2a); // Set background color
         const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
         
-        // Dynamic scene sizing
         const updateRendererSize = () => {
             const container = document.getElementById('viewer-container');
             renderer.setSize(container.clientWidth, container.clientHeight);
@@ -244,8 +263,6 @@
         rimLight.position.set(-10, 0, -10);
         scene.add(rimLight);
         
-        // Animation variables for camera rotation
-        let targetRotation = { x: 0.3, y: 0.5 };
         let currentRotation = { x: 0.3, y: 0.5 };
 
         // --- 4. MAIN LOAD FUNCTION ---
@@ -253,46 +270,49 @@
         function initView() {
             const capsuleId = getURLParameter('id');
             const capsules = JSON.parse(localStorage.getItem('timeCapsules') || '[]');
-            const capsule = capsules.find(c => c.id === capsuleId);
+            let capsule = capsules.find(c => c.id === capsuleId);
+            let isFallback = false;
 
+            // --- CRUCIAL FIX: Fallback to Test Capsule if data is missing ---
             if (!capsule) {
-                document.getElementById('capsule-header').textContent = 'Capsule Not Found';
-                return;
+                capsule = TEST_CAPSULE;
+                isFallback = true;
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error-message';
+                errorDiv.textContent = '❌ ID를 찾을 수 없어 테스트 캡슐을 로드했습니다. (3D 렌더링 확인)';
+                document.getElementById('info-sidebar').prepend(errorDiv);
             }
-
+            
             const openDate = new Date(capsule.openDate);
             const now = new Date();
-            const isOpened = openDate <= now;
+            const isOpened = isFallback || (openDate <= now); // Fallback test capsule is considered open
             
             // --- UI Update ---
             document.getElementById('capsule-header').textContent = capsule.name;
             document.getElementById('detail-open-date').textContent = openDate.toLocaleDateString();
             document.getElementById('detail-created-date').textContent = new Date(capsule.createdDate).toLocaleDateString();
             document.getElementById('detail-parts-count').textContent = capsule.parts.length;
-            document.getElementById('detail-future-message').innerHTML = capsule.futureMessage.replace(/\n/g, '<br>') || '<span style="font-style: italic;">(No message)</span>';
+            document.getElementById('detail-future-message').innerHTML = capsule.futureMessage ? capsule.futureMessage.replace(/\n/g, '<br>') : '<span style="font-style: italic;">(No message)</span>';
             
             const statusDisplay = document.getElementById('status-display');
             statusDisplay.textContent = isOpened ? 'CAPSULE OPENED!' : 'SEALED - WAIT FOR IT';
             statusDisplay.className = `status-badge ${isOpened ? 'open' : 'sealed'}`;
 
             // --- 3D Reconstruction ---
-            const centralGroup = new THREE.Group();
-            scene.add(centralGroup);
-            
             capsule.parts.forEach((part, index) => {
                 const svgData = allSvgPaths.find(s => s.id === part.svgId);
-                // Assign a color based on the index (or you could store color info in the part data)
+                // Color selection based on saved data (index mapping is simpler here)
                 const color = colorPalette[index % colorPalette.length]; 
 
                 if (svgData) {
-                    reconstructPart(part, svgData, color);
+                    reconstructPart(part, svgData, color, scene);
                 }
             });
 
-            // Set camera back a bit
-            camera.position.z = 200; 
-            camera.position.y = 50;
-            camera.rotation.x = -0.2; // Tilt down slightly
+            // Camera setup for viewing all parts
+            camera.position.z = 250; 
+            camera.position.y = 30;
+            camera.rotation.x = -0.2; 
 
             // --- Content Display (Only if Opened) ---
             if (isOpened) {
@@ -330,7 +350,6 @@
 
         function animate() {
             requestAnimationFrame(animate);
-            // Apply slight rotation for a dynamic view
             currentRotation.y += 0.001; 
             scene.rotation.y = currentRotation.y;
             renderer.render(scene, camera);
