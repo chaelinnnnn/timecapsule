@@ -3,67 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Time Capsule Gallery</title>
+    <title>Time Capsule Gallery - Stages</title>
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
             background: #2a2a2a;
             color: white;
-            padding: 40px;
+            padding: 20px;
             text-align: center;
+            overflow-x: hidden; /* Prevent horizontal scroll from containers */
         }
         .header {
             color: #00ff88;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             font-size: 32px;
         }
-        .capsule-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        .capsule-card {
+        .stage-section {
             background: #1a1a1a;
+            margin-bottom: 30px;
             padding: 20px;
-            border-radius: 12px;
-            border: 2px solid #333;
+            border-radius: 15px;
+            border: 1px solid #333;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+        .stage-title {
+            font-size: 22px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid;
             text-align: left;
-            transition: border-color 0.3s;
+            font-weight: 700;
+        }
+        #title-sealed { border-color: #667eea; color: #667eea; }
+        #title-soon { border-color: #feca57; color: #feca57; }
+        #title-open { border-color: #ff4444; color: #ff4444; }
+
+        .capsule-list {
+            display: flex;
+            overflow-x: auto; /* Enable horizontal scrolling for stages */
+            gap: 20px;
+            padding-bottom: 10px;
+            min-height: 150px; /* Ensure stages are visible even when empty */
+        }
+        /* Custom scrollbar for aesthetic */
+        .capsule-list::-webkit-scrollbar { height: 8px; }
+        .capsule-list::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        
+        .capsule-card {
+            min-width: 280px;
+            background: #2a2a2a;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #444;
+            flex-shrink: 0;
+            text-align: left;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
         .capsule-card:hover {
-            border-color: #00ff88;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
         }
         .capsule-card h3 {
-            color: white;
-            margin-bottom: 10px;
-            font-size: 20px;
-            border-bottom: 1px solid #333;
-            padding-bottom: 5px;
+            font-size: 18px;
+            margin-bottom: 5px;
         }
         .status {
             font-weight: 700;
-            padding: 5px 10px;
+            padding: 3px 8px;
             border-radius: 4px;
             display: inline-block;
-            margin-bottom: 10px;
-            font-size: 14px;
+            margin-bottom: 8px;
+            font-size: 12px;
             text-transform: uppercase;
         }
-        .status.open {
-            background: #ff4444;
-            color: white;
+        .status.open { background: #ff4444; color: white; }
+        .status.sealed { background: #00ff88; color: #000; }
+        .detail { font-size: 13px; color: #ccc; margin-top: 3px; }
+        .delete-btn {
+            background: #333; color: #ff4444; border: 1px solid #ff4444; 
+            padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px;
+            transition: background 0.2s;
         }
-        .status.sealed {
-            background: #00ff88;
-            color: #000;
-        }
-        .detail {
-            font-size: 14px;
-            color: #ccc;
-            margin-top: 5px;
-        }
+        .delete-btn:hover { background: #ff4444; color: white; }
         .back-button {
             margin-top: 30px;
             padding: 10px 20px;
@@ -72,75 +93,93 @@
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            transition: background 0.2s;
         }
-        .back-button:hover {
-            background: #5a6de0;
-        }
+        
     </style>
 </head>
 <body>
     <div class="header">⏳ My Time Capsule Gallery</div>
-    <div id="capsule-container" class="capsule-list">
-        </div>
     <button class="back-button" onclick="location.href='timecapsule.html'">
         ← Create New Capsule
     </button>
+    
+    <div id="stage-open" class="stage-section">
+        <div id="title-open" class="stage-title">🔓 Stage 3: Ready to Open / Opened</div>
+        <div id="capsule-container-open" class="capsule-list"></div>
+    </div>
 
+    <div id="stage-soon" class="stage-section">
+        <div id="title-soon" class="stage-title">⏳ Stage 2: Opening Soon (Next 3 Months)</div>
+        <div id="capsule-container-soon" class="capsule-list"></div>
+    </div>
+
+    <div id="stage-sealed" class="stage-section">
+        <div id="title-sealed" class="stage-title">🔒 Stage 1: Deeply Sealed</div>
+        <div id="capsule-container-sealed" class="capsule-list"></div>
+    </div>
+    
     <script>
         document.addEventListener('DOMContentLoaded', loadCapsules);
         
-        // 캡슐 삭제 로직
+        // 캡슐 삭제 로직 (기존 로직 유지)
         function deleteCapsule(id) {
             if (!confirm("정말로 이 타임캡슐을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.")) {
                 return;
             }
             
             let capsules = JSON.parse(localStorage.getItem('timeCapsules') || '[]');
-            
-            // 삭제할 ID와 일치하지 않는 캡슐만 남기고 필터링
             const updatedCapsules = capsules.filter(capsule => capsule.id !== id);
-            
-            // 새 목록을 Local Storage에 덮어쓰기
             localStorage.setItem('timeCapsules', JSON.stringify(updatedCapsules));
             
-            // 갤러리 목록 새로고침
-            loadCapsules();
+            loadCapsules(); // 목록 새로고침
         }
 
-        // 캡슐 목록 로드 로직
+        // 캡슐 목록 로드 및 스테이지 분류 로직 (수정됨)
         function loadCapsules() {
-            const container = document.getElementById('capsule-container');
+            // 컨테이너 초기화
+            document.getElementById('capsule-container-open').innerHTML = '';
+            document.getElementById('capsule-container-soon').innerHTML = '';
+            document.getElementById('capsule-container-sealed').innerHTML = '';
+
             const capsules = JSON.parse(localStorage.getItem('timeCapsules') || '[]');
             const now = new Date();
-            container.innerHTML = ''; 
+            const threeMonthsInMs = 3 * 30 * 24 * 60 * 60 * 1000; // 대략 3개월 (ms)
 
             if (capsules.length === 0) {
-                container.innerHTML = '<p style="color: #888; font-size: 1.1em;">No capsules buried yet. Go create one!</p>';
+                document.getElementById('capsule-container-sealed').innerHTML = '<p style="color: #888; padding-top: 10px;">No capsules buried yet.</p>';
                 return;
             }
 
             capsules.forEach(capsule => {
                 const openDate = new Date(capsule.openDate);
-                const isOpened = openDate <= now;
+                const timeDiff = openDate - now; // 남은 시간 (ms)
+                const isOpened = timeDiff <= 0;
+                
+                let containerId;
+
+                if (isOpened) {
+                    containerId = 'capsule-container-open';
+                } else if (timeDiff <= threeMonthsInMs) {
+                    containerId = 'capsule-container-soon';
+                } else {
+                    containerId = 'capsule-container-sealed';
+                }
+
                 const statusClass = isOpened ? 'open' : 'sealed';
-                const statusText = isOpened ? 'READY TO OPEN' : 'SEALED';
+                const statusText = isOpened ? 'OPENED' : (timeDiff <= threeMonthsInMs ? 'SOON' : 'SEALED');
                 const openDateDisplay = openDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
                 
                 const totalParts = capsule.parts.length;
                 const partsWithContent = capsule.parts.filter(p => p.contentData && p.contentData.content).length;
-
+                
                 const card = document.createElement('div');
                 card.className = 'capsule-card';
                 card.dataset.capsuleId = capsule.id;
+                
                 card.innerHTML = `
                     <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                         <span class="status ${statusClass}">${statusText}</span>
-                        <button class="delete-btn" data-id="${capsule.id}" style="
-                            background: #333; color: #ff4444; border: 1px solid #ff4444; 
-                            padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px;
-                            transition: background 0.2s;
-                        ">
+                        <button class="delete-btn" data-id="${capsule.id}">
                             🗑️ Delete
                         </button>
                     </div>
@@ -148,16 +187,15 @@
                     <div class="detail">Open Date: <strong style="color: ${isOpened ? '#ff4444' : '#00ff88'}">${openDateDisplay}</strong></div>
                     <div class="detail">Total Parts: ${totalParts}</div>
                     <div class="detail">Content Items: ${partsWithContent}</div>
-                    <div class="detail" style="margin-top: 15px;">
-                        <a href="timecapsule-view.html?id=${capsule.id}" style="color: #667eea; text-decoration: none;">View Summary / Open Capsule →</a>
+                    <div class="detail" style="margin-top: 10px;">
+                        <a href="timecapsule-view.html?id=${capsule.id}" style="color: #667eea; text-decoration: none;">View Capsule →</a>
                     </div>
                 `;
-                container.appendChild(card);
+                document.getElementById(containerId).appendChild(card);
             });
-            
+
             // 동적으로 생성된 삭제 버튼에 이벤트 리스너 할당
             document.querySelectorAll('.delete-btn').forEach(button => {
-                // DOM에서 버튼을 찾아 클릭 이벤트를 연결합니다.
                 button.addEventListener('click', (e) => {
                     const idToDelete = e.target.dataset.id;
                     deleteCapsule(idToDelete);
