@@ -1,779 +1,128 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Time Capsule Gallery</title>
+    <title>Time Capsule Gallery</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #2a2a2a;
             color: white;
-            overflow: hidden;
+            padding: 40px;
+            text-align: center;
         }
-        
         .header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            padding: 30px;
-            background: rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
-            z-index: 100;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .header h1 {
-            font-size: 28px;
-            font-weight: 700;
-        }
-        
-        .header-info {
-            display: flex;
-            gap: 30px;
-            font-size: 14px;
-        }
-        
-        .info-item {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-        }
-        
-        .info-label {
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 11px;
-            text-transform: uppercase;
-            margin-bottom: 4px;
-        }
-        
-        .info-value {
-            font-size: 24px;
-            font-weight: 700;
             color: #00ff88;
-        }
-        
-        #gallery-canvas {
-            width: 100vw;
-            height: 100vh;
-            display: block;
-            cursor: pointer;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .controls {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 15px;
-            background: rgba(0, 0, 0, 0.5);
-            padding: 15px 25px;
-            border-radius: 50px;
-            backdrop-filter: blur(10px);
-            z-index: 200;
-        }
-        
-        .control-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            transition: all 0.3s;
-            pointer-events: auto;
-        }
-        
-        .control-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-            border-color: #00ff88;
-            transform: translateY(-2px);
-        }
-        
-        .control-btn.primary {
-            background: #00ff88;
-            color: #000;
-            border-color: #00ff88;
-        }
-        
-        .control-btn.primary:hover {
-            background: #00dd77;
-        }
-        
-        .capsule-info-panel {
-            position: fixed;
-            right: -400px;
-            top: 0;
-            width: 400px;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.9);
-            backdrop-filter: blur(20px);
-            padding: 100px 40px 40px;
-            transition: right 0.3s ease;
-            overflow-y: auto;
-            z-index: 150;
-        }
-        
-        .capsule-info-panel.active {
-            right: 0;
-        }
-        
-        .panel-close {
-            position: absolute;
-            top: 30px;
-            right: 30px;
-            background: none;
-            border: none;
-            color: white;
-            font-size: 32px;
-            cursor: pointer;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            transition: all 0.3s;
-        }
-        
-        .panel-close:hover {
-            background: rgba(255, 255, 255, 0.1);
-            transform: rotate(90deg);
-        }
-        
-        .capsule-detail h2 {
-            color: #00ff88;
-            margin-bottom: 10px;
-            font-size: 24px;
-        }
-        
-        .capsule-detail .date-info {
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 13px;
             margin-bottom: 30px;
+            font-size: 32px;
         }
-        
-        .detail-section {
-            margin-bottom: 25px;
-            padding-bottom: 25px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        .capsule-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
         }
-        
-        .detail-section:last-child {
-            border-bottom: none;
-        }
-        
-        .detail-label {
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 11px;
-            text-transform: uppercase;
-            margin-bottom: 8px;
-            font-weight: 600;
-        }
-        
-        .detail-value {
-            color: white;
-            font-size: 16px;
-            line-height: 1.6;
-        }
-        
-        .countdown-display {
-            background: rgba(0, 255, 136, 0.1);
-            border: 1px solid rgba(0, 255, 136, 0.3);
+        .capsule-card {
+            background: #1a1a1a;
             padding: 20px;
             border-radius: 12px;
-            text-align: center;
-            margin-bottom: 25px;
+            border: 2px solid #333;
+            text-align: left;
+            transition: border-color 0.3s;
         }
-        
-        .countdown-label {
-            font-size: 11px;
-            color: rgba(255, 255, 255, 0.6);
-            margin-bottom: 8px;
+        .capsule-card:hover {
+            border-color: #00ff88;
+        }
+        .capsule-card h3 {
+            color: white;
+            margin-bottom: 10px;
+            font-size: 20px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 5px;
+        }
+        .status {
+            font-weight: 700;
+            padding: 5px 10px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 10px;
+            font-size: 14px;
             text-transform: uppercase;
         }
-        
-        .countdown-value {
-            font-size: 28px;
-            font-weight: 700;
-            color: #00ff88;
+        .status.open {
+            background: #ff4444;
+            color: white;
         }
-        
-        .parts-preview {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-top: 15px;
-        }
-        
-        .part-thumb {
-            aspect-ratio: 1;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-        }
-        
-        .empty-state {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            z-index: 10;
-        }
-        
-        .empty-state h2 {
-            font-size: 32px;
-            margin-bottom: 15px;
-            color: rgba(255, 255, 255, 0.9);
-        }
-        
-        .empty-state p {
-            font-size: 16px;
-            color: rgba(255, 255, 255, 0.6);
-            margin-bottom: 30px;
-        }
-        
-        .empty-state button {
+        .status.sealed {
             background: #00ff88;
             color: #000;
+        }
+        .detail {
+            font-size: 14px;
+            color: #ccc;
+            margin-top: 5px;
+        }
+        .back-button {
+            margin-top: 30px;
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
             border: none;
-            padding: 15px 40px;
-            border-radius: 25px;
-            font-size: 16px;
-            font-weight: 700;
+            border-radius: 8px;
             cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .empty-state button:hover {
-            background: #00dd77;
-            transform: translateY(-2px);
-        }
-        
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: rgba(0, 255, 136, 0.3);
-            border-radius: 4px;
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>My Time Capsule Gallery</h1>
-        <div class="header-info">
-            <div class="info-item">
-                <div class="info-label">Total Capsules</div>
-                <div class="info-value" id="total-capsules">0</div>
-            </div>
-            <div class="info-item">
-                <div class="info-label">Ready to Open</div>
-                <div class="info-value" id="ready-count">0</div>
-            </div>
+    <div class="header">⏳ My Time Capsule Gallery</div>
+    <div id="capsule-container" class="capsule-list">
         </div>
-    </div>
+    <button class="back-button" onclick="location.href='timecapsule.html'">
+        ← Create New Capsule
+    </button>
 
-    <canvas id="gallery-canvas"></canvas>
+    <script>
+        document.addEventListener('DOMContentLoaded', loadCapsules);
 
-    <div id="empty-state" class="empty-state" style="display: none;">
-        <h2>No Time Capsules Yet</h2>
-        <p>Create your first time capsule to start your collection</p>
-        <button onclick="window.location.href='index.html'">Create Capsule</button>
-    </div>
-
-    <div class="controls">
-        <button class="control-btn" id="rotate-left">← Rotate</button>
-        <button class="control-btn" id="rotate-right">Rotate →</button>
-        <button class="control-btn primary" onclick="window.location.href='index.html'">+ New Capsule</button>
-    </div>
-
-    <div class="capsule-info-panel" id="info-panel">
-        <button class="panel-close" onclick="closePanel()">×</button>
-        <div id="capsule-detail" class="capsule-detail"></div>
-    </div>
-
-    <script type="importmap">
-    {
-        "imports": {
-            "three": "https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.module.js"
-        }
-    }
-    </script>
-    <script type="module">
-        import * as THREE from 'three';
-
-        // Load capsules from localStorage
-        const capsules = JSON.parse(localStorage.getItem('timeCapsules') || '[]');
-        
-        console.log('Loaded capsules:', capsules);
-
-        // Update header info
-        document.getElementById('total-capsules').textContent = capsules.length;
-        
-        const now = new Date();
-        const readyCount = capsules.filter(c => new Date(c.openDate) <= now).length;
-        document.getElementById('ready-count').textContent = readyCount;
-
-        // Show empty state if no capsules
-        if (capsules.length === 0) {
-            document.getElementById('empty-state').style.display = 'block';
-        }
-
-        // Three.js setup
-        const canvas = document.getElementById('gallery-canvas');
-        const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x667eea);
-        scene.fog = new THREE.Fog(0x667eea, 10, 50);
-
-        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(0, 5, 15);
-        camera.lookAt(0, 0, 0);
-
-        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.shadowMap.enabled = true;
-
-        // Lighting
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-        scene.add(ambientLight);
-
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        directionalLight.position.set(10, 20, 10);
-        directionalLight.castShadow = true;
-        scene.add(directionalLight);
-
-        const spotLight = new THREE.SpotLight(0x00ff88, 0.5);
-        spotLight.position.set(0, 15, 0);
-        spotLight.angle = Math.PI / 4;
-        scene.add(spotLight);
-
-        // Ground
-        const groundGeometry = new THREE.PlaneGeometry(100, 100);
-        const groundMaterial = new THREE.MeshStandardMaterial({ 
-            color: 0x764ba2,
-            roughness: 0.8,
-            metalness: 0.2
-        });
-        const ground = new THREE.Mesh(groundGeometry, groundMaterial);
-        ground.rotation.x = -Math.PI / 2;
-        ground.receiveShadow = true;
-        scene.add(ground);
-
-        // Create capsule objects
-        const capsuleObjects = [];
-        const radius = capsules.length > 6 ? 10 : 8;
-
-        capsules.forEach((capsuleData, index) => {
-            const angle = (index / capsules.length) * Math.PI * 2;
-            const x = Math.cos(angle) * radius;
-            const z = Math.sin(angle) * radius;
-
-            // Check if capsule is ready to open
-            const openDate = new Date(capsuleData.openDate);
-            const now = new Date();
-            const isLocked = openDate > now;
-
-            // Create capsule group
-            const group = new THREE.Group();
-            
-            // Main capsule body (cylinder)
-            const bodyGeometry = new THREE.CylinderGeometry(0.8, 0.8, 2, 32);
-            const bodyMaterial = new THREE.MeshStandardMaterial({
-                color: isLocked ? 0x9b7fbf : 0x00ff88,  // Purple if locked, green if ready
-                metalness: 0.7,
-                roughness: 0.3,
-                emissive: isLocked ? 0x6b4f8a : 0x00ff88,
-                emissiveIntensity: isLocked ? 0.3 : 0.2
-            });
-            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-            body.castShadow = true;
-            group.add(body);
-
-            // Top cap
-            const capGeometry = new THREE.SphereGeometry(0.8, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2);
-            const cap = new THREE.Mesh(capGeometry, bodyMaterial);
-            cap.position.y = 1;
-            cap.castShadow = true;
-            group.add(cap);
-
-            // Bottom cap
-            const bottomCap = new THREE.Mesh(capGeometry, bodyMaterial);
-            bottomCap.position.y = -1;
-            bottomCap.rotation.x = Math.PI;
-            bottomCap.castShadow = true;
-            group.add(bottomCap);
-
-            // Lock icon for locked capsules
-            if (isLocked) {
-                const lockGeometry = new THREE.TorusGeometry(0.3, 0.1, 16, 32);
-                const lockMaterial = new THREE.MeshStandardMaterial({
-                    color: 0xffaa00,
-                    metalness: 0.9,
-                    roughness: 0.1,
-                    emissive: 0xffaa00,
-                    emissiveIntensity: 0.5
-                });
-                const lockRing = new THREE.Mesh(lockGeometry, lockMaterial);
-                lockRing.rotation.x = Math.PI / 2;
-                lockRing.position.y = 0;
-                group.add(lockRing);
-
-                const lockBodyGeometry = new THREE.BoxGeometry(0.5, 0.6, 0.3);
-                const lockBody = new THREE.Mesh(lockBodyGeometry, lockMaterial);
-                lockBody.position.y = -0.5;
-                group.add(lockBody);
-            }
-
-            // Label platform
-            const labelGeometry = new THREE.BoxGeometry(2, 0.1, 2);
-            const labelMaterial = new THREE.MeshStandardMaterial({
-                color: isLocked ? 0xc4a7e0 : 0xffffff,  // Light purple if locked
-                metalness: 0.5,
-                roughness: 0.5
-            });
-            const label = new THREE.Mesh(labelGeometry, labelMaterial);
-            label.position.y = -2;
-            label.receiveShadow = true;
-            label.castShadow = true;
-            group.add(label);
-
-            // Position group
-            group.position.set(x, 1, z);
-            group.userData.capsuleData = capsuleData;
-            group.userData.index = index;
-            group.userData.isLocked = isLocked;
-            
-            scene.add(group);
-            capsuleObjects.push(group);
-
-            // Floating animation
-            group.userData.floatOffset = Math.random() * Math.PI * 2;
-        });
-
-        // Raycaster for selection
-        const raycaster = new THREE.Raycaster();
-        const mouse = new THREE.Vector2();
-        let selectedCapsule = null;
-
-        // Mouse interaction
-        canvas.addEventListener('click', (event) => {
-            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-            console.log('Click detected', mouse);
-            console.log('Capsule objects:', capsuleObjects.length);
-
-            raycaster.setFromCamera(mouse, camera);
-            const intersects = raycaster.intersectObjects(capsuleObjects, true);
-
-            console.log('Intersects:', intersects.length);
-
-            if (intersects.length > 0) {
-                console.log('First intersect:', intersects[0]);
-                let object = intersects[0].object;
-                
-                // Traverse up to find the group
-                let maxIterations = 10;
-                let iterations = 0;
-                while (object.parent && !capsuleObjects.includes(object) && iterations < maxIterations) {
-                    console.log('Traversing up from:', object);
-                    object = object.parent;
-                    iterations++;
-                }
-                
-                console.log('Final object:', object);
-                console.log('Is in capsuleObjects:', capsuleObjects.includes(object));
-                
-                if (capsuleObjects.includes(object)) {
-                    console.log('Opening capsule info!');
-                    if (object.userData.isLocked) {
-                        // Show locked message
-                        showLockedMessage(object.userData.capsuleData);
-                    } else {
-                        // Show capsule info
-                        showCapsuleInfo(object.userData.capsuleData);
-                    }
-                } else {
-                    console.log('Object not in capsuleObjects array');
-                }
-            } else {
-                console.log('No intersects found');
-            }
-        });
-
-        // Rotation controls
-        let targetRotation = 0;
-        let currentRotation = 0;
-
-        document.getElementById('rotate-left').addEventListener('click', () => {
-            targetRotation += Math.PI / 4;
-        });
-
-        document.getElementById('rotate-right').addEventListener('click', () => {
-            targetRotation -= Math.PI / 4;
-        });
-
-        // Show locked capsule message
-        function showLockedMessage(capsuleData) {
-            const panel = document.getElementById('info-panel');
-            const detail = document.getElementById('capsule-detail');
-
-            const openDate = new Date(capsuleData.openDate);
-            const createdDate = new Date(capsuleData.createdDate);
-            const now = new Date();
-
-            const diff = openDate - now;
-            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-            const years = Math.floor(days / 365);
-            const months = Math.floor((days % 365) / 30);
-            const finalDays = (days % 365) % 30;
-
-            let countdown = '';
-            if (years > 0) countdown += `${years} year${years > 1 ? 's' : ''} `;
-            if (months > 0) countdown += `${months} month${months > 1 ? 's' : ''} `;
-            countdown += `${finalDays} day${finalDays !== 1 ? 's' : ''}`;
-
-            detail.innerHTML = `
-                <div style="text-align: center; padding: 40px 0;">
-                    <div style="font-size: 80px; margin-bottom: 20px;">🔒</div>
-                    <h2>${capsuleData.name}</h2>
-                    <div class="date-info">Created ${createdDate.toLocaleDateString()}</div>
-                </div>
-
-                <div class="countdown-display" style="border-color: #ffaa00; background: rgba(255, 170, 0, 0.1);">
-                    <div class="countdown-label" style="color: #ffaa00;">Locked Until</div>
-                    <div class="countdown-value" style="color: #ffaa00;">${countdown}</div>
-                </div>
-
-                <div class="detail-section">
-                    <div class="detail-label">Open Date</div>
-                    <div class="detail-value">${openDate.toLocaleDateString('en-US', { 
-                        year: 'numeric', 
-                        month: 'long', 
-                        day: 'numeric' 
-                    })}</div>
-                </div>
-
-                <div style="background: rgba(255, 170, 0, 0.1); padding: 20px; border-radius: 12px; border: 1px solid rgba(255, 170, 0, 0.3); margin-top: 30px;">
-                    <div style="font-size: 14px; color: rgba(255, 255, 255, 0.8); line-height: 1.6; text-align: center;">
-                        ⏳ This time capsule is still sealed.<br>
-                        Come back on the open date to view its contents!
-                    </div>
-                </div>
-
-                <button class="delete-capsule-btn control-btn" style="width: 100%; margin-top: 20px; background: #ff4444; border: none; padding: 15px;" data-capsule-name="${capsuleData.name}">
-                    Delete Capsule
-                </button>
-            `;
-
-            panel.classList.add('active');
-        }
-
-        // Show capsule info panel
-        function showCapsuleInfo(capsuleData) {
-            const panel = document.getElementById('info-panel');
-            const detail = document.getElementById('capsule-detail');
-
-            const openDate = new Date(capsuleData.openDate);
-            const createdDate = new Date(capsuleData.createdDate);
-            const now = new Date();
-            const isReady = openDate <= now;
-
-            let countdown = '';
-            if (!isReady) {
-                const diff = openDate - now;
-                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                const years = Math.floor(days / 365);
-                const months = Math.floor((days % 365) / 30);
-                const finalDays = (days % 365) % 30;
-
-                if (years > 0) countdown += `${years} year${years > 1 ? 's' : ''} `;
-                if (months > 0) countdown += `${months} month${months > 1 ? 's' : ''} `;
-                countdown += `${finalDays} day${finalDays !== 1 ? 's' : ''}`;
-            }
-
-            detail.innerHTML = `
-                <h2>${capsuleData.name}</h2>
-                <div class="date-info">Created ${createdDate.toLocaleDateString()}</div>
-
-                ${!isReady ? `
-                    <div class="countdown-display">
-                        <div class="countdown-label">Opens in</div>
-                        <div class="countdown-value">${countdown}</div>
-                    </div>
-                ` : `
-                    <div class="countdown-display" style="border-color: #00ff88;">
-                        <div class="countdown-label">Ready to Open!</div>
-                        <div class="countdown-value">🎉</div>
-                    </div>
-                `}
-
-                <div class="detail-section">
-                    <div class="detail-label">Open Date</div>
-                    <div class="detail-value">${openDate.toLocaleDateString('en-US', { 
-                        year: 'numeric', 
-                        month: 'long', 
-                        day: 'numeric' 
-                    })}</div>
-                </div>
-
-                <div class="detail-section">
-                    <div class="detail-label">Total Parts</div>
-                    <div class="detail-value">${capsuleData.parts.length} piece${capsuleData.parts.length !== 1 ? 's' : ''}</div>
-                    <div class="parts-preview">
-                        ${capsuleData.parts.slice(0, 6).map(part => 
-                            `<div class="part-thumb">✨</div>`
-                        ).join('')}
-                    </div>
-                </div>
-
-                ${capsuleData.futureMessage ? `
-                    <div class="detail-section">
-                        <div class="detail-label">Message to Future Self</div>
-                        <div class="detail-value">${capsuleData.futureMessage}</div>
-                    </div>
-                ` : ''}
-
-                ${isReady ? `
-                    <button class="open-capsule-btn control-btn primary" style="width: 100%; margin-top: 20px;" data-capsule-name="${capsuleData.name}">
-                        Open Capsule
-                    </button>
-                    <button class="delete-capsule-btn control-btn" style="width: 100%; margin-top: 10px; background: #ff4444; border: none; padding: 15px;" data-capsule-name="${capsuleData.name}">
-                        Delete Capsule
-                    </button>
-                ` : ''}
-            `;
-
-            panel.classList.add('active');
-        }
-
-        window.closePanel = function() {
-            document.getElementById('info-panel').classList.remove('active');
-        };
-
-        window.openCapsule = function(name) {
-            alert(`Opening capsule: ${name}\n\nThis feature will show your saved capsule contents!`);
-        };
-
-        window.deleteCapsule = function(name) {
-            console.log('deleteCapsule called for:', name);
-            
-            // Remove from localStorage
+        function loadCapsules() {
+            const container = document.getElementById('capsule-container');
+            // 로컬 저장소에서 'timeCapsules' 데이터를 불러옵니다.
             const capsules = JSON.parse(localStorage.getItem('timeCapsules') || '[]');
-            console.log('Before delete:', capsules.length, 'capsules');
-            const filteredCapsules = capsules.filter(c => c.name !== name);
-            console.log('After delete:', filteredCapsules.length, 'capsules');
-            localStorage.setItem('timeCapsules', JSON.stringify(filteredCapsules));
+            const now = new Date();
+            container.innerHTML = ''; 
 
-            // Close panel and reload page
-            closePanel();
-            console.log('Reloading page...');
-            location.reload();
-        };
+            if (capsules.length === 0) {
+                container.innerHTML = '<p style="color: #888; font-size: 1.1em;">No capsules buried yet. Go create one!</p>';
+                return;
+            }
 
-        // Animation loop
-        function animate() {
-            requestAnimationFrame(animate);
+            capsules.forEach(capsule => {
+                const openDate = new Date(capsule.openDate);
+                const isOpened = openDate <= now;
+                const statusClass = isOpened ? 'open' : 'sealed';
+                const statusText = isOpened ? 'READY TO OPEN' : 'SEALED';
+                const openDateDisplay = openDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+                
+                const totalParts = capsule.parts.length;
+                const partsWithContent = capsule.parts.filter(p => p.contentData && p.contentData.content).length;
 
-            const time = Date.now() * 0.001;
-
-            // Smooth rotation
-            currentRotation += (targetRotation - currentRotation) * 0.05;
-            
-            capsuleObjects.forEach((capsule, i) => {
-                // Float animation
-                const floatY = Math.sin(time + capsule.userData.floatOffset) * 0.2;
-                capsule.position.y = 1 + floatY;
-
-                // Rotate
-                capsule.rotation.y = time * 0.5;
-
-                // Rotate around center
-                const baseAngle = (i / capsuleObjects.length) * Math.PI * 2;
-                const angle = baseAngle + currentRotation;
-                capsule.position.x = Math.cos(angle) * radius;
-                capsule.position.z = Math.sin(angle) * radius;
-
-                // Pulse effect
-                const scale = 1 + Math.sin(time * 2 + i) * 0.05;
-                capsule.scale.setScalar(scale);
+                const card = document.createElement('div');
+                card.className = 'capsule-card';
+                card.innerHTML = `
+                    <span class="status ${statusClass}">${statusText}</span>
+                    <h3>${capsule.name}</h3>
+                    <div class="detail">Open Date: <strong style="color: ${isOpened ? '#ff4444' : '#00ff88'}">${openDateDisplay}</strong></div>
+                    <div class="detail">Total Parts: ${totalParts}</div>
+                    <div class="detail">Content Items: ${partsWithContent}</div>
+                    <div class="detail" style="margin-top: 15px;">
+                        <a href="timecapsule-view.html?id=${capsule.id}" style="color: #667eea; text-decoration: none;">View Summary / Open Capsule →</a>
+                    </div>
+                `;
+                container.appendChild(card);
             });
-
-            renderer.render(scene, camera);
         }
-
-        animate();
-
-        // Event delegation for dynamically created buttons
-        document.getElementById('info-panel').addEventListener('click', function(e) {
-            console.log('=== INFO PANEL CLICKED ===');
-            console.log('Target element:', e.target);
-            console.log('Target tagName:', e.target.tagName);
-            console.log('Target classList:', e.target.classList);
-            console.log('Target classes array:', Array.from(e.target.classList));
-            
-            // Check if clicked element is delete button
-            if (e.target.classList.contains('delete-capsule-btn')) {
-                console.log('✓ Delete button detected!');
-                const capsuleName = e.target.getAttribute('data-capsule-name');
-                console.log('Capsule name:', capsuleName);
-                if (capsuleName) {
-                    console.log('Calling deleteCapsule with:', capsuleName);
-                    deleteCapsule(capsuleName);
-                } else {
-                    console.error('ERROR: No capsule name found!');
-                }
-            } else {
-                console.log('✗ Not a delete button');
-            }
-            
-            // Check if clicked element is open button
-            if (e.target.classList.contains('open-capsule-btn')) {
-                console.log('✓ Open button detected!');
-                const capsuleName = e.target.getAttribute('data-capsule-name');
-                console.log('Capsule name:', capsuleName);
-                if (capsuleName) {
-                    console.log('Calling openCapsule with:', capsuleName);
-                    openCapsule(capsuleName);
-                } else {
-                    console.error('ERROR: No capsule name found!');
-                }
-            } else {
-                console.log('✗ Not an open button');
-            }
-        });
-
-        // Handle window resize
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
     </script>
 </body>
 </html>
