@@ -72,6 +72,10 @@
             border: none;
             border-radius: 8px;
             cursor: pointer;
+            transition: background 0.2s;
+        }
+        .back-button:hover {
+            background: #5a6de0;
         }
     </style>
 </head>
@@ -85,10 +89,28 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', loadCapsules);
+        
+        // 캡슐 삭제 로직
+        function deleteCapsule(id) {
+            if (!confirm("정말로 이 타임캡슐을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.")) {
+                return;
+            }
+            
+            let capsules = JSON.parse(localStorage.getItem('timeCapsules') || '[]');
+            
+            // 삭제할 ID와 일치하지 않는 캡슐만 남기고 필터링
+            const updatedCapsules = capsules.filter(capsule => capsule.id !== id);
+            
+            // 새 목록을 Local Storage에 덮어쓰기
+            localStorage.setItem('timeCapsules', JSON.stringify(updatedCapsules));
+            
+            // 갤러리 목록 새로고침
+            loadCapsules();
+        }
 
+        // 캡슐 목록 로드 로직
         function loadCapsules() {
             const container = document.getElementById('capsule-container');
-            // 로컬 저장소에서 'timeCapsules' 데이터를 불러옵니다.
             const capsules = JSON.parse(localStorage.getItem('timeCapsules') || '[]');
             const now = new Date();
             container.innerHTML = ''; 
@@ -110,8 +132,18 @@
 
                 const card = document.createElement('div');
                 card.className = 'capsule-card';
+                card.dataset.capsuleId = capsule.id;
                 card.innerHTML = `
-                    <span class="status ${statusClass}">${statusText}</span>
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <span class="status ${statusClass}">${statusText}</span>
+                        <button class="delete-btn" data-id="${capsule.id}" style="
+                            background: #333; color: #ff4444; border: 1px solid #ff4444; 
+                            padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px;
+                            transition: background 0.2s;
+                        ">
+                            🗑️ Delete
+                        </button>
+                    </div>
                     <h3>${capsule.name}</h3>
                     <div class="detail">Open Date: <strong style="color: ${isOpened ? '#ff4444' : '#00ff88'}">${openDateDisplay}</strong></div>
                     <div class="detail">Total Parts: ${totalParts}</div>
@@ -121,6 +153,15 @@
                     </div>
                 `;
                 container.appendChild(card);
+            });
+            
+            // 동적으로 생성된 삭제 버튼에 이벤트 리스너 할당
+            document.querySelectorAll('.delete-btn').forEach(button => {
+                // DOM에서 버튼을 찾아 클릭 이벤트를 연결합니다.
+                button.addEventListener('click', (e) => {
+                    const idToDelete = e.target.dataset.id;
+                    deleteCapsule(idToDelete);
+                });
             });
         }
     </script>
