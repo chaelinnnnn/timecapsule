@@ -240,6 +240,8 @@
     </div>
 
     <div class="controls">
+        <button class="control-btn" id="zoom-out">− Zoom Out</button>
+        <button class="control-btn" id="zoom-in">+ Zoom In</button>
         <button class="control-btn" id="rotate-left">← Rotate</button>
         <button class="control-btn" id="rotate-right">Rotate →</button>
         <button class="control-btn primary" onclick="window.location.href='index.html'">+ New Capsule</button>
@@ -407,7 +409,7 @@
                 
                 const size = box.getSize(new THREE.Vector3());
                 const maxDim = Math.max(size.x, size.y, size.z);
-                const scale = 10.0 / maxDim;  // 6.0 → 10.0으로 증가
+                const scale = 1.5 / maxDim;  // 원래대로
                 group.scale.setScalar(scale);
                 
                 resolve(group);
@@ -487,12 +489,12 @@
                             const color = colorPalette[i % colorPalette.length];
                             const partMesh = await createShapeFromSVG(svgData, color);
                             
-                            // Apply saved transformations (크기 훨씬 더 증가)
+                            // Apply saved transformations (원래대로)
                             if (part.position) {
                                 partMesh.position.set(
-                                    part.position.x * 0.15,  // 0.1 → 0.15
-                                    part.position.y * 0.15,
-                                    part.position.z * 0.15
+                                    part.position.x * 0.02,
+                                    part.position.y * 0.02,
+                                    part.position.z * 0.02
                                 );
                             }
                             if (part.rotation) {
@@ -503,7 +505,7 @@
                                 );
                             }
                             if (part.scale) {
-                                partMesh.scale.multiplyScalar(part.scale.x * 2.5);  // 1.5 → 2.5
+                                partMesh.scale.multiplyScalar(part.scale.x * 0.3);
                             }
                             
                             group.add(partMesh);
@@ -555,6 +557,18 @@
         // Rotation controls
         let targetRotation = 0;
         let currentRotation = 0;
+
+        // Zoom controls
+        let targetZoom = 15;
+        let currentZoom = 15;
+
+        document.getElementById('zoom-in').addEventListener('click', () => {
+            targetZoom = Math.max(5, targetZoom - 2);
+        });
+
+        document.getElementById('zoom-out').addEventListener('click', () => {
+            targetZoom = Math.min(30, targetZoom + 2);
+        });
 
         document.getElementById('rotate-left').addEventListener('click', () => {
             targetRotation += Math.PI / 4;
@@ -853,6 +867,10 @@ Total Parts: ${capsule.parts.length}
             const time = Date.now() * 0.001;
 
             currentRotation += (targetRotation - currentRotation) * 0.05;
+            currentZoom += (targetZoom - currentZoom) * 0.05;
+            
+            // Update camera position for zoom
+            camera.position.z = currentZoom;
             
             capsuleObjects.forEach((capsule, i) => {
                 const floatY = Math.sin(time + capsule.userData.floatOffset) * 0.2;
@@ -865,7 +883,7 @@ Total Parts: ${capsule.parts.length}
                 capsule.position.x = Math.cos(angle) * radius;
                 capsule.position.z = Math.sin(angle) * radius;
 
-                const scale = 4.0 + Math.sin(time * 2 + i) * 0.2;  // 3.0 → 4.0으로 증가
+                const scale = 1 + Math.sin(time * 2 + i) * 0.05;
                 capsule.scale.setScalar(scale);
             });
 
