@@ -407,7 +407,7 @@
                 
                 const size = box.getSize(new THREE.Vector3());
                 const maxDim = Math.max(size.x, size.y, size.z);
-                const scale = 6.0 / maxDim;  // 3.0 → 6.0으로 증가
+                const scale = 10.0 / maxDim;  // 6.0 → 10.0으로 증가
                 group.scale.setScalar(scale);
                 
                 resolve(group);
@@ -432,8 +432,8 @@
                 const group = new THREE.Group();
 
                 if (isLocked) {
-                    // LOCKED - Simple capsule (크기 2배 증가)
-                    const bodyGeometry = new THREE.CylinderGeometry(1.6, 1.6, 4, 32);
+                    // LOCKED - Simple capsule (작게)
+                    const bodyGeometry = new THREE.CylinderGeometry(0.8, 0.8, 2, 32);
                     const bodyMaterial = new THREE.MeshStandardMaterial({
                         color: 0x9b7fbf,
                         metalness: 0.7,
@@ -445,20 +445,20 @@
                     body.castShadow = true;
                     group.add(body);
 
-                    const capGeometry = new THREE.SphereGeometry(1.6, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2);
+                    const capGeometry = new THREE.SphereGeometry(0.8, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2);
                     const cap = new THREE.Mesh(capGeometry, bodyMaterial);
-                    cap.position.y = 2;
+                    cap.position.y = 1;
                     cap.castShadow = true;
                     group.add(cap);
 
                     const bottomCap = new THREE.Mesh(capGeometry, bodyMaterial);
-                    bottomCap.position.y = -2;
+                    bottomCap.position.y = -1;
                     bottomCap.rotation.x = Math.PI;
                     bottomCap.castShadow = true;
                     group.add(bottomCap);
 
-                    // Lock icon (크기 2배)
-                    const lockGeometry = new THREE.TorusGeometry(0.6, 0.2, 16, 32);
+                    // Lock icon (작게)
+                    const lockGeometry = new THREE.TorusGeometry(0.3, 0.1, 16, 32);
                     const lockMaterial = new THREE.MeshStandardMaterial({
                         color: 0xffaa00,
                         metalness: 0.9,
@@ -471,9 +471,9 @@
                     lockRing.position.y = 0;
                     group.add(lockRing);
 
-                    const lockBodyGeometry = new THREE.BoxGeometry(1.0, 1.2, 0.6);
+                    const lockBodyGeometry = new THREE.BoxGeometry(0.5, 0.6, 0.3);
                     const lockBody = new THREE.Mesh(lockBodyGeometry, lockMaterial);
-                    lockBody.position.y = -1.0;
+                    lockBody.position.y = -0.5;
                     group.add(lockBody);
                 } else {
                     // READY - Load actual parts!
@@ -487,12 +487,12 @@
                             const color = colorPalette[i % colorPalette.length];
                             const partMesh = await createShapeFromSVG(svgData, color);
                             
-                            // Apply saved transformations (크기 5배 증가)
+                            // Apply saved transformations (크기 훨씬 더 증가)
                             if (part.position) {
                                 partMesh.position.set(
-                                    part.position.x * 0.1,  // 0.02 → 0.1
-                                    part.position.y * 0.1,
-                                    part.position.z * 0.1
+                                    part.position.x * 0.15,  // 0.1 → 0.15
+                                    part.position.y * 0.15,
+                                    part.position.z * 0.15
                                 );
                             }
                             if (part.rotation) {
@@ -503,7 +503,7 @@
                                 );
                             }
                             if (part.scale) {
-                                partMesh.scale.multiplyScalar(part.scale.x * 1.5);  // 0.3 → 1.5
+                                partMesh.scale.multiplyScalar(part.scale.x * 2.5);  // 1.5 → 2.5
                             }
                             
                             group.add(partMesh);
@@ -865,7 +865,7 @@ Total Parts: ${capsule.parts.length}
                 capsule.position.x = Math.cos(angle) * radius;
                 capsule.position.z = Math.sin(angle) * radius;
 
-                const scale = 3.0 + Math.sin(time * 2 + i) * 0.15;  // 2.0 → 3.0으로 증가
+                const scale = 4.0 + Math.sin(time * 2 + i) * 0.2;  // 3.0 → 4.0으로 증가
                 capsule.scale.setScalar(scale);
             });
 
