@@ -136,11 +136,13 @@
             right: 20px;
             background: rgba(0, 255, 136, 0.15);
             border: 1px solid #00ff88;
-            padding: 15px;
+            padding: 12px;
             border-radius: 8px;
-            font-size: 12px;
+            font-size: 11px;
             display: none;
-            min-width: 180px;
+            width: 220px;
+            max-height: 80vh;
+            overflow-y: auto;
         }
         
         .selected-info.active {
@@ -149,14 +151,14 @@
         
         .selected-info h4 {
             color: #00ff88;
-            margin-bottom: 10px;
-            font-size: 13px;
+            margin-bottom: 6px;
+            font-size: 12px;
         }
         
         .slider-container {
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid rgba(0, 255, 136, 0.3);
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(0, 255, 136, 0.2);
         }
         
         .slider-label {
@@ -290,17 +292,20 @@
             </div>
             
             <div class="selected-info" id="selected-info">
-                <h4>Edit Part</h4>
-                <div style="color: #ccc; margin-bottom: 4px;">Drag to move</div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <h4 style="margin: 0;">Edit Part</h4>
+                    <button id="close-edit-btn" style="padding: 2px 8px; background: rgba(255,255,255,0.2); color: #fff; border: none; border-radius: 4px; cursor: pointer; font-size: 10px;">✓ Done</button>
+                </div>
+                <div style="color: #aaa; margin-bottom: 8px; font-size: 10px;">Drag to move</div>
                 
                 <!-- Content Display Area -->
-                <div id="content-display" style="margin-bottom: 20px; padding: 15px; background: rgba(0, 255, 136, 0.1); border-radius: 8px; border: 1px solid rgba(0, 255, 136, 0.3);">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                        <div style="font-size: 11px; color: #00ff88; text-transform: uppercase; font-weight: 600;">Stored Content</div>
-                        <button id="edit-content-btn" style="padding: 4px 10px; background: #00ff88; color: #000; border: none; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: 600;">Edit</button>
+                <div id="content-display" style="margin-bottom: 12px; padding: 10px; background: rgba(0, 255, 136, 0.1); border-radius: 6px; border: 1px solid rgba(0, 255, 136, 0.3);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <div style="font-size: 9px; color: #00ff88; text-transform: uppercase; font-weight: 600;">Content</div>
+                        <button id="edit-content-btn" style="padding: 3px 8px; background: #00ff88; color: #000; border: none; border-radius: 3px; cursor: pointer; font-size: 9px; font-weight: 600;">Edit</button>
                     </div>
-                    <div id="content-preview" style="color: #fff; font-size: 13px; max-height: 200px; overflow-y: auto;">
-                        <div style="color: #888; font-style: italic;">No content</div>
+                    <div id="content-preview" style="color: #fff; font-size: 11px; max-height: 100px; overflow-y: auto;">
+                        <div style="color: #888; font-style: italic; font-size: 10px;">No content</div>
                     </div>
                 </div>
                 
@@ -336,7 +341,7 @@
                     <input type="range" min="0" max="360" value="0" class="slider" id="rotation-z-slider">
                 </div>
                 
-                <button id="delete-btn" style="width: 100%; margin-top: 12px; padding: 8px; background: #ff4444; font-size: 12px;">Delete</button>
+                <button id="delete-btn" style="width: 100%; margin-top: 10px; padding: 8px; background: #ff4444; font-size: 11px; border-radius: 4px; border: none; color: white; cursor: pointer;">Delete</button>
             </div>
             <canvas id="canvas-3d"></canvas>
             
@@ -1140,6 +1145,11 @@
                 selectedMesh.userData.manualRotation.z = (degrees * Math.PI) / 180;
                 rotationZValue.textContent = degrees + '°';
             }
+        });
+        
+        // Close edit panel button
+        document.getElementById('close-edit-btn').addEventListener('click', () => {
+            deselectMesh();
         });
         
         // Delete button
