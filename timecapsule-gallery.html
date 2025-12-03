@@ -482,34 +482,59 @@
                     // READY - Load actual parts!
                     const parts = capsuleData.parts || [];
                     
-                    for (let i = 0; i < parts.length; i++) {
-                        const part = parts[i];
-                        const svgData = allSvgPaths.find(svg => svg.id === part.svgId);
-                        
-                        if (svgData) {
-                            const color = colorPalette[i % colorPalette.length];
-                            const partMesh = await createShapeFromSVG(svgData, color);
+                    console.log(`Loading capsule ${index}:`, capsuleData.name, 'Parts:', parts.length);
+                    
+                    if (parts.length === 0) {
+                        // No parts - show placeholder
+                        const sphereGeometry = new THREE.SphereGeometry(1, 32, 32);
+                        const sphereMaterial = new THREE.MeshStandardMaterial({
+                            color: 0x00ff88,
+                            metalness: 0.5,
+                            roughness: 0.5,
+                            emissive: 0x00ff88,
+                            emissiveIntensity: 0.3
+                        });
+                        const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+                        sphere.castShadow = true;
+                        group.add(sphere);
+                        console.log('Added placeholder sphere');
+                    } else {
+                        for (let i = 0; i < parts.length; i++) {
+                            const part = parts[i];
+                            const svgData = allSvgPaths.find(svg => svg.id === part.svgId);
                             
-                            // Apply saved transformations (원래대로)
-                            if (part.position) {
-                                partMesh.position.set(
-                                    part.position.x * 0.02,
-                                    part.position.y * 0.02,
-                                    part.position.z * 0.02
-                                );
-                            }
-                            if (part.rotation) {
-                                partMesh.rotation.set(
-                                    part.rotation.x,
-                                    part.rotation.y,
-                                    part.rotation.z
-                                );
-                            }
-                            if (part.scale) {
-                                partMesh.scale.multiplyScalar(part.scale.x * 0.3);
-                            }
+                            console.log(`  Part ${i}:`, part.svgId, svgData ? 'Found' : 'NOT FOUND');
                             
-                            group.add(partMesh);
+                            if (svgData) {
+                                try {
+                                    const color = colorPalette[i % colorPalette.length];
+                                    const partMesh = await createShapeFromSVG(svgData, color);
+                                    
+                                    // Apply saved transformations (원래대로)
+                                    if (part.position) {
+                                        partMesh.position.set(
+                                            part.position.x * 0.02,
+                                            part.position.y * 0.02,
+                                            part.position.z * 0.02
+                                        );
+                                    }
+                                    if (part.rotation) {
+                                        partMesh.rotation.set(
+                                            part.rotation.x,
+                                            part.rotation.y,
+                                            part.rotation.z
+                                        );
+                                    }
+                                    if (part.scale) {
+                                        partMesh.scale.multiplyScalar(part.scale.x * 0.3);
+                                    }
+                                    
+                                    group.add(partMesh);
+                                    console.log(`    Added part ${i} successfully`);
+                                } catch (error) {
+                                    console.error(`    Failed to load part ${i}:`, error);
+                                }
+                            }
                         }
                     }
                 }
