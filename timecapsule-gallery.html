@@ -218,7 +218,7 @@
 </head>
 <body>
     <div class="header">
-        <h1>⏰ My Time Capsule Gallery</h1>
+        <h1>My Time Capsule Gallery</h1>
         <div class="header-info">
             <div class="info-item">
                 <span style="opacity: 0.6;">Total Capsules</span>
@@ -255,7 +255,7 @@
         <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px; padding: 40px; max-width: 500px; width: 90%; position: relative;">
             <button onclick="closeShareModal()" style="position: absolute; top: 15px; right: 20px; background: none; border: none; color: white; font-size: 30px; cursor: pointer;">×</button>
             
-            <h2 style="color: white; margin-bottom: 20px; font-size: 28px;">🔗 Share Time Capsule</h2>
+            <h2 style="color: white; margin-bottom: 20px; font-size: 28px;">Share Time Capsule</h2>
             
             <div style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 12px; margin-bottom: 20px;">
                 <label style="color: rgba(255,255,255,0.8); font-size: 12px; display: block; margin-bottom: 8px;">Share Link</label>
@@ -268,15 +268,15 @@
             <div style="margin-bottom: 20px;">
                 <label style="color: rgba(255,255,255,0.8); font-size: 14px; display: block; margin-bottom: 12px;">Share via</label>
                 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
-                    <button onclick="shareViaEmail()" style="padding: 12px; background: rgba(255,255,255,0.1); color: white; border: 2px solid rgba(255,255,255,0.3); border-radius: 8px; cursor: pointer; font-weight: 600;">📧 Email</button>
-                    <button onclick="shareViaTwitter()" style="padding: 12px; background: rgba(255,255,255,0.1); color: white; border: 2px solid rgba(255,255,255,0.3); border-radius: 8px; cursor: pointer; font-weight: 600;">🐦 Twitter</button>
-                    <button onclick="shareViaFacebook()" style="padding: 12px; background: rgba(255,255,255,0.1); color: white; border: 2px solid rgba(255,255,255,0.3); border-radius: 8px; cursor: pointer; font-weight: 600;">📘 Facebook</button>
-                    <button onclick="shareViaWhatsApp()" style="padding: 12px; background: rgba(255,255,255,0.1); color: white; border: 2px solid rgba(255,255,255,0.3); border-radius: 8px; cursor: pointer; font-weight: 600;">💬 WhatsApp</button>
+                    <button onclick="shareViaEmail()" style="padding: 12px; background: rgba(255,255,255,0.1); color: white; border: 2px solid rgba(255,255,255,0.3); border-radius: 8px; cursor: pointer; font-weight: 600;">Email</button>
+                    <button onclick="shareViaTwitter()" style="padding: 12px; background: rgba(255,255,255,0.1); color: white; border: 2px solid rgba(255,255,255,0.3); border-radius: 8px; cursor: pointer; font-weight: 600;">Twitter</button>
+                    <button onclick="shareViaFacebook()" style="padding: 12px; background: rgba(255,255,255,0.1); color: white; border: 2px solid rgba(255,255,255,0.3); border-radius: 8px; cursor: pointer; font-weight: 600;">Facebook</button>
+                    <button onclick="shareViaWhatsApp()" style="padding: 12px; background: rgba(255,255,255,0.1); color: white; border: 2px solid rgba(255,255,255,0.3); border-radius: 8px; cursor: pointer; font-weight: 600;">WhatsApp</button>
                 </div>
             </div>
 
             <div style="border-top: 1px solid rgba(255,255,255,0.2); padding-top: 20px;">
-                <button onclick="downloadCapsuleJSON()" style="width: 100%; padding: 15px; background: rgba(255,255,255,0.1); color: white; border: 2px solid rgba(255,255,255,0.3); border-radius: 8px; cursor: pointer; font-weight: 600;">💾 Download as JSON File</button>
+                <button onclick="downloadCapsuleJSON()" style="width: 100%; padding: 15px; background: rgba(255,255,255,0.1); color: white; border: 2px solid rgba(255,255,255,0.3); border-radius: 8px; cursor: pointer; font-weight: 600;">Download as JSON File</button>
             </div>
         </div>
     </div>
@@ -607,7 +607,7 @@
 
                 <div style="background: rgba(255, 170, 0, 0.1); padding: 20px; border-radius: 12px; border: 1px solid rgba(255, 170, 0, 0.3); margin-top: 30px;">
                     <div style="font-size: 14px; color: rgba(255, 255, 255, 0.8); line-height: 1.6; text-align: center;">
-                        ⏳ This time capsule is still sealed.<br>
+                        This time capsule is still sealed.<br>
                         Come back on the open date to view its contents!
                     </div>
                 </div>
@@ -634,7 +634,7 @@
 
                 <div class="countdown-display" style="border-color: #00ff88;">
                     <div class="countdown-label">Ready to Open!</div>
-                    <div class="countdown-value">🎉</div>
+                    <div class="countdown-value">Ready</div>
                 </div>
 
                 <div class="detail-section">
@@ -659,13 +659,13 @@
                 ` : ''}
 
                 <button class="open-capsule-btn control-btn primary" style="width: 100%; margin-top: 20px;" data-capsule-name="${capsuleData.name}">
-                    📦 Open Capsule
+                    Open Capsule
                 </button>
                 <button class="share-capsule-btn control-btn" style="width: 100%; margin-top: 10px; background: #00ff88; color: #000; border: none; padding: 15px;" data-capsule-name="${capsuleData.name}">
-                    🔗 Share Capsule
+                    Share Capsule
                 </button>
                 <button class="delete-capsule-btn control-btn" style="width: 100%; margin-top: 10px; background: #ff4444; border: none; padding: 15px;" data-capsule-name="${capsuleData.name}">
-                    🗑️ Delete Capsule
+                    Delete Capsule
                 </button>
             `;
 
@@ -726,7 +726,7 @@ Total Parts: ${capsule.parts.length}
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
                 
-                alert(`🎉 Time Capsule "${name}" opened!\n\nYour memories have been downloaded as a ZIP file.`);
+                alert(`Time Capsule "${name}" opened!\n\nYour memories have been downloaded as a ZIP file.`);
             });
         };
 
@@ -774,7 +774,7 @@ Total Parts: ${capsule.parts.length}
             const urlInput = document.getElementById('share-url');
             urlInput.select();
             document.execCommand('copy');
-            alert('✅ Link copied to clipboard!');
+            alert('Link copied to clipboard!');
         };
 
         window.shareViaEmail = function() {
@@ -786,7 +786,7 @@ Total Parts: ${capsule.parts.length}
 
         window.shareViaTwitter = function() {
             const url = document.getElementById('share-url').value;
-            const text = encodeURIComponent(`Check out my Time Capsule: ${currentShareCapsule.name} ⏰`);
+            const text = encodeURIComponent(`Check out my Time Capsule: ${currentShareCapsule.name}`);
             window.open(`https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(url)}`);
         };
 
@@ -797,7 +797,7 @@ Total Parts: ${capsule.parts.length}
 
         window.shareViaWhatsApp = function() {
             const url = document.getElementById('share-url').value;
-            const text = encodeURIComponent(`Check out my Time Capsule: ${currentShareCapsule.name} ⏰\n${url}`);
+            const text = encodeURIComponent(`Check out my Time Capsule: ${currentShareCapsule.name}\n${url}`);
             window.open(`https://wa.me/?text=${text}`);
         };
 
@@ -812,7 +812,7 @@ Total Parts: ${capsule.parts.length}
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
-            alert('✅ Capsule downloaded as JSON file!');
+            alert('Capsule downloaded as JSON file!');
         };
 
         // Check if page loaded with shared capsule
@@ -826,22 +826,22 @@ Total Parts: ${capsule.parts.length}
                     const sharedCapsule = JSON.parse(capsuleJSON);
                     
                     // Show import dialog
-                    if (confirm(`📦 Import shared time capsule: "${sharedCapsule.name}"?\n\nThis will add it to your collection.`)) {
+                    if (confirm(`Import shared time capsule: "${sharedCapsule.name}"?\n\nThis will add it to your collection.`)) {
                         const capsules = JSON.parse(localStorage.getItem('timeCapsules') || '[]');
                         
                         // Check if already exists
                         if (capsules.find(c => c.name === sharedCapsule.name)) {
-                            alert('⚠️ A capsule with this name already exists!');
+                            alert('A capsule with this name already exists!');
                         } else {
                             capsules.push(sharedCapsule);
                             localStorage.setItem('timeCapsules', JSON.stringify(capsules));
-                            alert('✅ Time capsule imported successfully!');
+                            alert('Time capsule imported successfully!');
                             location.href = window.location.pathname; // Remove query params and reload
                         }
                     }
                 } catch (e) {
                     console.error('Failed to import shared capsule:', e);
-                    alert('❌ Invalid share link!');
+                    alert('Invalid share link!');
                 }
             }
         });
