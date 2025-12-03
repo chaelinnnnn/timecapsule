@@ -511,19 +511,6 @@
                     }
                 }
 
-                // Label platform
-                const labelGeometry = new THREE.BoxGeometry(2, 0.1, 2);
-                const labelMaterial = new THREE.MeshStandardMaterial({
-                    color: isLocked ? 0xc4a7e0 : 0xffffff,
-                    metalness: 0.5,
-                    roughness: 0.5
-                });
-                const label = new THREE.Mesh(labelGeometry, labelMaterial);
-                label.position.y = -2;
-                label.receiveShadow = true;
-                label.castShadow = true;
-                group.add(label);
-
                 group.position.set(x, 1, z);
                 group.userData.capsuleData = capsuleData;
                 group.userData.index = index;
