@@ -5,32 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Time Capsule Builder - 3D</title>
     <style>
-        /* CSS Styles (통합) */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
+        
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
             background: #2a2a2a;
             color: white;
             overflow: hidden;
         }
-
+        
         .container {
             display: grid;
             grid-template-columns: 250px 1fr 250px;
             height: 100vh;
         }
-
+        
         .sidebar {
             background: #1a1a1a;
             padding: 20px;
             overflow-y: auto;
         }
-
+        
         .sidebar h3 {
             margin-bottom: 20px;
             font-size: 14px;
@@ -38,13 +37,13 @@
             letter-spacing: 1px;
             color: #888;
         }
-
+        
         .parts-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 10px;
         }
-
+        
         .part-item {
             background: #333;
             border: 2px solid transparent;
@@ -57,23 +56,23 @@
             align-items: center;
             justify-content: center;
         }
-
+        
         .part-item:hover {
             border-color: #00ff88;
             transform: scale(1.05);
         }
-
+        
         .part-item.selected {
             border-color: #00ff88;
             background: #2a4a3a;
         }
-
+        
         .part-item svg {
             width: 80%;
             height: 80%;
             fill: white;
         }
-
+        
         .canvas-area {
             display: flex;
             flex-direction: column;
@@ -81,20 +80,20 @@
             justify-content: center;
             position: relative;
         }
-
+        
         #canvas-3d {
             width: 600px;
             height: 600px;
             border-radius: 20px;
         }
-
+        
         .controls {
             position: absolute;
             bottom: 40px;
             display: flex;
             gap: 15px;
         }
-
+        
         button {
             background: #00ff88;
             color: #000;
@@ -106,30 +105,21 @@
             cursor: pointer;
             transition: all 0.3s;
         }
-
+        
         button:hover {
             background: #00dd77;
             transform: translateY(-2px);
         }
-
+        
         button.secondary {
             background: #333;
             color: white;
         }
-
+        
         button.secondary:hover {
             background: #444;
         }
         
-        /* View Gallery Button Style */
-        #view-gallery-btn {
-            background: #667eea; /* Purple/Blue color */
-            color: white;
-        }
-        #view-gallery-btn:hover {
-            background: #5a6de0;
-        }
-
         .info {
             position: absolute;
             top: 20px;
@@ -139,7 +129,7 @@
             border-radius: 8px;
             font-size: 14px;
         }
-
+        
         .selected-info {
             position: absolute;
             top: 80px;
@@ -152,23 +142,23 @@
             display: none;
             min-width: 180px;
         }
-
+        
         .selected-info.active {
             display: block;
         }
-
+        
         .selected-info h4 {
             color: #00ff88;
             margin-bottom: 10px;
             font-size: 13px;
         }
-
+        
         .slider-container {
             margin-top: 12px;
             padding-top: 12px;
             border-top: 1px solid rgba(0, 255, 136, 0.3);
         }
-
+        
         .slider-label {
             color: #00ff88;
             font-size: 11px;
@@ -176,7 +166,7 @@
             display: flex;
             justify-content: space-between;
         }
-
+        
         .slider {
             width: 100%;
             height: 4px;
@@ -185,7 +175,7 @@
             outline: none;
             -webkit-appearance: none;
         }
-
+        
         .slider::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
@@ -195,7 +185,7 @@
             background: #00ff88;
             cursor: pointer;
         }
-
+        
         .slider::-moz-range-thumb {
             width: 14px;
             height: 14px;
@@ -204,7 +194,7 @@
             cursor: pointer;
             border: none;
         }
-
+        
         .color-picker {
             position: absolute;
             top: 20px;
@@ -213,20 +203,20 @@
             padding: 15px;
             border-radius: 8px;
         }
-
+        
         .color-picker h4 {
             font-size: 12px;
             margin-bottom: 10px;
             color: #888;
             text-transform: uppercase;
         }
-
+        
         .color-options {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 8px;
         }
-
+        
         .color-btn {
             width: 40px;
             height: 40px;
@@ -235,24 +225,24 @@
             cursor: pointer;
             transition: all 0.2s;
         }
-
+        
         .color-btn:hover {
             transform: scale(1.1);
         }
-
+        
         .color-btn.active {
             border-color: white;
             box-shadow: 0 0 10px rgba(255,255,255,0.5);
         }
-
+        
         ::-webkit-scrollbar {
             width: 8px;
         }
-
+        
         ::-webkit-scrollbar-track {
             background: #1a1a1a;
         }
-
+        
         ::-webkit-scrollbar-thumb {
             background: #00ff88;
             border-radius: 4px;
@@ -303,6 +293,7 @@
                 <h4>Edit Part</h4>
                 <div style="color: #ccc; margin-bottom: 4px;">Drag to move</div>
                 
+                <!-- Content Display Area -->
                 <div id="content-display" style="margin-bottom: 20px; padding: 15px; background: rgba(0, 255, 136, 0.1); border-radius: 8px; border: 1px solid rgba(0, 255, 136, 0.3);">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                         <div style="font-size: 11px; color: #00ff88; text-transform: uppercase; font-weight: 600;">Stored Content</div>
@@ -333,7 +324,7 @@
                     <div class="slider-label">
                         <span>Rotation Y</span>
                         <span id="rotation-y-value">0°</span>
-                        </div>
+                    </div>
                     <input type="range" min="0" max="360" value="0" class="slider" id="rotation-y-slider">
                 </div>
                 
@@ -363,10 +354,12 @@
         </div>
     </div>
 
+    <!-- Upload Modal -->
     <div id="upload-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center;">
         <div style="background: #2a2a2a; border-radius: 20px; padding: 40px; max-width: 500px; width: 90%; border: 2px solid #00ff88; margin: auto; margin-top: 50px;">
             <h2 style="margin-bottom: 20px; color: #00ff88; text-align: center;">Add Content to Your Part</h2>
             
+            <!-- Content Type Selection -->
             <div style="margin-bottom: 25px;">
                 <label style="display: block; margin-bottom: 10px; color: #ccc; font-size: 14px;">Content Type:</label>
                 <div style="display: flex; gap: 10px;">
@@ -376,17 +369,20 @@
                 </div>
             </div>
 
+            <!-- Text Input -->
             <div id="text-input-area" style="margin-bottom: 25px;">
                 <label style="display: block; margin-bottom: 10px; color: #ccc; font-size: 14px;">Your Message:</label>
                 <textarea id="text-content" placeholder="Write your memory, message, or story..." style="width: 100%; height: 120px; padding: 12px; background: #1a1a1a; color: white; border: 1px solid #444; border-radius: 8px; resize: vertical; font-family: inherit; font-size: 14px;"></textarea>
             </div>
 
+            <!-- Image Upload -->
             <div id="image-input-area" style="display: none; margin-bottom: 25px;">
                 <label style="display: block; margin-bottom: 10px; color: #ccc; font-size: 14px;">Upload Image:</label>
                 <input type="file" id="image-upload" accept="image/*" style="width: 100%; padding: 12px; background: #1a1a1a; color: white; border: 1px solid #444; border-radius: 8px; cursor: pointer;">
                 <div id="image-preview" style="margin-top: 15px; text-align: center;"></div>
             </div>
 
+            <!-- Drawing Canvas -->
             <div id="drawing-input-area" style="display: none; margin-bottom: 25px;">
                 <label style="display: block; margin-bottom: 10px; color: #ccc; font-size: 14px;">Draw Something:</label>
                 <div style="text-align: center;">
@@ -399,6 +395,7 @@
                 </div>
             </div>
 
+            <!-- Modal Buttons -->
             <div style="display: flex; gap: 15px; margin-top: 30px;">
                 <button id="modal-cancel" style="flex: 1; padding: 15px; background: #444; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: 600;">Cancel</button>
                 <button id="modal-confirm" style="flex: 1; padding: 15px; background: #00ff88; color: #000; border: none; border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: 600;">Add to Scene</button>
@@ -406,6 +403,7 @@
         </div>
     </div>
 
+    <!-- Bury Modal -->
     <div id="bury-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; align-items: center; justify-content: center;">
         <div style="background: #2a2a2a; border-radius: 20px; padding: 50px; max-width: 600px; width: 90%; border: 2px solid #00ff88; margin: auto; margin-top: 50px;">
             <h2 style="margin-bottom: 15px; color: #00ff88; text-align: center; font-size: 28px;">Bury Your Time Capsule</h2>
@@ -413,6 +411,7 @@
                 Set when you want to open this capsule. Your memories will be safely stored until that date.
             </p>
             
+            <!-- Capsule Summary -->
             <div style="background: rgba(0, 255, 136, 0.1); padding: 20px; border-radius: 12px; margin-bottom: 30px; border: 1px solid rgba(0, 255, 136, 0.3);">
                 <div style="font-size: 12px; color: #00ff88; margin-bottom: 12px; text-transform: uppercase; font-weight: 600;">Capsule Summary</div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; color: #fff;">
@@ -427,11 +426,13 @@
                 </div>
             </div>
 
+            <!-- Capsule Name -->
             <div style="margin-bottom: 25px;">
                 <label style="display: block; margin-bottom: 10px; color: #ccc; font-size: 14px; font-weight: 600;">Capsule Name</label>
                 <input type="text" id="capsule-name" placeholder="My 2025 Memories" style="width: 100%; padding: 15px; background: #1a1a1a; color: white; border: 1px solid #444; border-radius: 10px; font-size: 16px; font-family: inherit;">
             </div>
 
+            <!-- Open Date -->
             <div style="margin-bottom: 25px;">
                 <label style="display: block; margin-bottom: 10px; color: #ccc; font-size: 14px; font-weight: 600;">When should this capsule be opened?</label>
                 <input type="date" id="open-date" style="width: 100%; padding: 15px; background: #1a1a1a; color: white; border: 1px solid #444; border-radius: 10px; font-size: 16px; font-family: inherit; cursor: pointer;">
@@ -443,62 +444,23 @@
                 </div>
             </div>
 
+            <!-- Personal Message -->
             <div style="margin-bottom: 30px;">
                 <label style="display: block; margin-bottom: 10px; color: #ccc; font-size: 14px; font-weight: 600;">Message to Future Self (optional)</label>
                 <textarea id="future-message" placeholder="Dear future me..." style="width: 100%; height: 100px; padding: 15px; background: #1a1a1a; color: white; border: 1px solid #444; border-radius: 10px; resize: vertical; font-family: inherit; font-size: 14px; line-height: 1.6;"></textarea>
             </div>
 
+            <!-- Time Until Opening -->
             <div id="time-display" style="text-align: center; padding: 20px; background: rgba(0,0,0,0.3); border-radius: 10px; margin-bottom: 30px; display: none;">
                 <div style="font-size: 13px; color: #888; margin-bottom: 8px;">Time until opening:</div>
                 <div id="countdown-display" style="font-size: 32px; font-weight: 700; color: #00ff88;"></div>
             </div>
 
+            <!-- Buttons -->
             <div style="display: flex; gap: 15px; margin-top: 30px;">
                 <button id="bury-cancel" style="flex: 1; padding: 18px; background: #444; color: white; border: none; border-radius: 12px; cursor: pointer; font-size: 16px; font-weight: 600;">Cancel</button>
                 <button id="bury-confirm" style="flex: 1; padding: 18px; background: #00ff88; color: #000; border: none; border-radius: 12px; cursor: pointer; font-size: 16px; font-weight: 700;">Bury Capsule</button>
             </div>
-        </div>
-    </div>
-
-    <div id="share-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 3000; align-items: center; justify-content: center;">
-        <div style="background: #2a2a2a; border-radius: 20px; padding: 50px; max-width: 550px; width: 90%; border: 2px solid #667eea; margin: auto; margin-top: 50px; text-align: center;">
-            <h2 style="margin-bottom: 15px; color: #667eea; font-size: 28px;">Share Your Time Capsule 🚀</h2>
-            <p style="text-align: center; color: #ccc; margin-bottom: 30px; line-height: 1.6;">
-                Share this link with family and friends. They can view the capsule summary and receive a notification on the opening date.
-            </p>
-
-            <div style="margin-bottom: 30px;">
-                <label style="display: block; margin-bottom: 10px; color: #00ff88; font-size: 14px; font-weight: 600;">Unique Capsule Link</label>
-                <div style="display: flex; gap: 10px;">
-                    <input type="text" id="capsule-share-link" value="" readonly 
-                           style="flex-grow: 1; padding: 15px; background: #1a1a1a; color: white; border: 1px solid #444; border-radius: 10px; font-size: 14px; text-align: center;">
-                    <button id="copy-link-btn" style="padding: 15px; background: #00ff88; color: #000; border: none; border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: 600;">
-                        📋 Copy
-                    </button>
-                </div>
-            </div>
-
-            <div style="margin-bottom: 40px;">
-                <div style="font-size: 12px; color: #888; margin-bottom: 15px;">Share directly:</div>
-                <div style="display: flex; justify-content: center; gap: 20px;">
-                    <button class="social-share-btn" data-platform="email" style="width: 50px; height: 50px; border-radius: 50%; background: #ff4444; color: white; border: none; font-size: 20px; cursor: pointer;">
-                        📧
-                    </button>
-                    <button class="social-share-btn" data-platform="sms" style="width: 50px; height: 50px; border-radius: 50%; background: #48c6ef; color: white; border: none; font-size: 20px; cursor: pointer;">
-                        💬
-                    </button>
-                    <button class="social-share-btn" data-platform="whatsapp" style="width: 50px; height: 50px; border-radius: 50%; background: #25d366; color: white; border: none; font-size: 20px; cursor: pointer;">
-                        <span style="font-size: 18px; font-weight: 700;">WA</span>
-                    </button>
-                    <button class="social-share-btn" data-platform="telegram" style="width: 50px; height: 50px; border-radius: 50%; background: #0088cc; color: white; border: none; font-size: 20px; cursor: pointer;">
-                        <span style="font-size: 18px; font-weight: 700;">TG</span>
-                    </button>
-                </div>
-            </div>
-
-            <button id="share-modal-close" style="width: 100%; padding: 15px; background: #444; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: 600; margin-top: 10px;">
-                Done / Go to Gallery
-            </button>
         </div>
     </div>
 
@@ -512,8 +474,8 @@
     <script type="module">
         import * as THREE from 'three';
         
-        // --- DATA SECTION & THREE.JS SETUP (통합) ---
-        const allSvgPaths = [ /* ... (SVG Data is here) ... */
+        // SVG data
+        const allSvgPaths = [
             { id: 1, viewBox: "0 0 120.29 776.67", path: "M58.61,6.74c8.05,7.09,17.3,23.07,20.5,40.22,1.99,9.63,1.77,22.69-2.45,28.51-3.77,5.36-8,5.1-13.41,8.21-10.95,5.19-21.63,26.6-27.59,47.98-3.49,11.94-6.69,23.89-8.65,40.49-3.35,26.91-1.32,60.97,5.77,84.58,17.15,58.2,48.07,53.43,67.98,90.05,8.87,16.21,17.65,44.78,12.44,72.5-4.75,29.19-22.12,41.67-21.96,75.47.04,20.01,5.73,38.68,10.19,55.34,7.97,28.28,14.31,60.57,17.25,93.73,3.32,33.16,1.83,66.22-7.44,92.11-7.61,22.29-18.57,40.78-31.03,40.76-21.79.54-41-45.05-43-95.42-2.5-40.5,2.74-81.86.79-122.49-2.27-49.21-17.85-88.33-22.25-136.52-2.36-22.07-2.58-45.03-1.33-67.54,2.17-34.47,3.97-65.2-2.44-98.14C1.24,202.71-6.87,168.93,8.54,113.28c3.73-13.56,6.68-27.87,7.39-44.13,1.08-19.91,1.74-43.81,9.22-56.66C34.02-3.23,48.02-2.82,58.41,6.56l.19.17Z" },
             { id: 2, viewBox: "0 0 192.44 631.71", path: "M118.87,12.14c13.81-16.31,33.01-3.54,41.48,20.21,20.36,57.22-12.86,145.95-12.96,213.31-.25,11.48.21,22.89,1.52,34,3.5,29.97,12.72,55.83,21.46,81.8,14.67,41.86,29.34,91.95,18.08,142.1-7.76,37.47-30.12,55.37-43.14,16.41-4.18-13-5.59-28.76-5.59-43.76,1.09-51.13,9.31-90.7-14.19-130.15-15.06-26.51-39.45-32.76-57.36-17.78-19.68,15.12-33.87,49.35-30.58,84.81,1.62,18.85,8.62,36.38,16.83,48.88,8.28,13.15,18.14,23.95,23.15,42.33,6.32,23.74,5.66,55.6,16.43,76.52,3.01,6.39,6.92,11.72,10.62,16.48,3.62,5.31,9.44,10.61,9.37,18.44-1.09,9.93-10.07,13.14-16.82,15.04-18.87,4.19-39.71-5.99-55.83-24.22C-2.82,557.45-8.7,450.45,10.06,366.55c6.16-29.62,15.97-57.13,27.51-80.37,5.46-11.29,11.4-22.48,16.32-33.72,16.27-34.42,17.92-78.71,6.46-118.93-10.71-39.89-35.18-56.79-41.82-95.88-2.06-13.13.07-29.24,6.97-35.58,18.14-12.23,24.16,32.83,37.62,50,5.28,7.38,11.98,11.57,18.63,10.3,17.46-2.85,23.97-34.82,36.97-50.07l.15-.17Z" },
             { id: 3, viewBox: "0 0 199.85 661.11", path: "M86.86,169.39c24.94,61.78,107.84,157.99,95.51,246.42-9.31,54.67-42.28,75.3-67.75,95.49-15.89,12.35-31.78,17.38-48.39,12.26-11.72-3.23-23.38-8.23-35.18-2.71-12.65,5.5-24.55,22.1-28.89,46-7.34,39.05,4.49,94.18,28.29,94.27,17.34.23,31.95-22.41,45.32-41.4,9.2-13.32,18.41-26.52,27.99-38.8,8.06-10.37,16.38-19.95,25-28.52,15.65-15.87,33.01-28.02,46.65-48.92,27.42-40.35,29.81-115.68,16.82-172.92-18.11-78.77-44.02-100.45-41.4-199.18-.21-32.59,7.11-113.4-10.54-129.24-10.59-7.62-19.76,6.88-29.83,16.89-5.63,6.08-11.49,11.32-17.39,16.31-40.1,30.19-28.13,82.9-6.31,133.8l.11.25Z" },
@@ -539,8 +501,8 @@
             { id: 23, viewBox: "0 0 100 100", path: "M50,10 L90,90 L10,90 Z" },
             { id: 24, viewBox: "0 0 100 120", path: "M20,20 L80,20 L80,100 L20,100 Z M25,15 L75,15 L75,20 L25,20 Z M25,100 L75,100 L75,105 L25,105 Z" }
         ];
-
-        // Three.js, State, and Helper Functions (UUID, addPartTo3D, checkIntersection, etc.) are implemented here
+        
+        // Three.js setup
         const canvas = document.getElementById('canvas-3d');
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
@@ -551,33 +513,38 @@
         renderer.setClearColor(0x1a1a1a);
         camera.position.z = 200;
         
+        // Lighting
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
         scene.add(ambientLight);
+        
         const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
         directionalLight.position.set(10, 10, 5);
         scene.add(directionalLight);
+        
         const rimLight = new THREE.DirectionalLight(0x00ff88, 0.3);
         rimLight.position.set(-10, 0, -10);
         scene.add(rimLight);
         
+        // State
         const addedMeshes = [];
         const colorPalette = [
-            { base: 0xff6b6b, rim: 0xee5a6f }, 
-            { base: 0x4ecdc4, rim: 0x44a08d }, 
-            { base: 0xf093fb, rim: 0xf5576c }, 
-            { base: 0xfeca57, rim: 0xee5a6f }, 
-            { base: 0x48c6ef, rim: 0x6f86d6 }, 
-            { base: 0x96fbc4, rim: 0xf9f586 }, 
-            { base: 0xa18cd1, rim: 0xfbc2eb }, 
-            { base: 0xfa8bff, rim: 0x2bd2ff }, 
-            { base: 0xff9a56, rim: 0xff6a88 }, 
-            { base: 0xa8edea, rim: 0xfed6e3 }, 
-            { base: 0xffecd2, rim: 0xfcb69f }, 
-            { base: 0x667eea, rim: 0x764ba2 }
+            { base: 0xff6b6b, rim: 0xee5a6f },  // Red-Pink
+            { base: 0x4ecdc4, rim: 0x44a08d },  // Teal-Green
+            { base: 0xf093fb, rim: 0xf5576c },  // Purple-Pink
+            { base: 0xfeca57, rim: 0xee5a6f },  // Yellow-Pink
+            { base: 0x48c6ef, rim: 0x6f86d6 },  // Sky Blue-Purple
+            { base: 0x96fbc4, rim: 0xf9f586 },  // Mint-Yellow
+            { base: 0xa18cd1, rim: 0xfbc2eb },  // Lavender-Pink
+            { base: 0xfa8bff, rim: 0x2bd2ff },  // Magenta-Cyan
+            { base: 0xff9a56, rim: 0xff6a88 },  // Orange-Coral
+            { base: 0xa8edea, rim: 0xfed6e3 },  // Aqua-Rose
+            { base: 0xffecd2, rim: 0xfcb69f },  // Peach
+            { base: 0x667eea, rim: 0x764ba2 }   // Blue-Purple
         ];
         let selectedColorIndex = 0;
-        let currentMovementAxis = 'xy';
+        let currentMovementAxis = 'xy'; // Movement constraint: 'xy', 'x', or 'y'
         
+        // Raycaster for object selection
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
         let selectedMesh = null;
@@ -585,34 +552,168 @@
         let dragPlane = new THREE.Plane();
         let intersection = new THREE.Vector3();
         let offset = new THREE.Vector3();
-
-        function generateUUID() {
-            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-                var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-                return v.toString(16);
+        
+        // SVG to Shape - Complete rewrite
+        function svgPathToShape(pathData) {
+            const shape = new THREE.Shape();
+            
+            // Clean and parse the path
+            let currentX = 0, currentY = 0;
+            let startX = 0, startY = 0;
+            
+            // Split into commands
+            const tokens = pathData.match(/[a-df-z][^a-df-z]*/gi);
+            
+            if (!tokens) return shape;
+            
+            tokens.forEach(token => {
+                const cmd = token[0];
+                const values = token.slice(1)
+                    .trim()
+                    .split(/[\s,]+/)
+                    .filter(v => v)
+                    .map(v => parseFloat(v));
+                
+                // Skip if invalid values
+                if (values.some(v => isNaN(v))) return;
+                
+                switch (cmd) {
+                    case 'M': // absolute moveTo
+                        if (values.length >= 2) {
+                            currentX = startX = values[0];
+                            currentY = startY = values[1];
+                            shape.moveTo(currentX, -currentY);
+                        }
+                        break;
+                        
+                    case 'm': // relative moveTo
+                        if (values.length >= 2) {
+                            currentX += values[0];
+                            currentY += values[1];
+                            startX = currentX;
+                            startY = currentY;
+                            shape.moveTo(currentX, -currentY);
+                        }
+                        break;
+                        
+                    case 'L': // absolute lineTo
+                        if (values.length >= 2) {
+                            currentX = values[0];
+                            currentY = values[1];
+                            shape.lineTo(currentX, -currentY);
+                        }
+                        break;
+                        
+                    case 'l': // relative lineTo
+                        if (values.length >= 2) {
+                            currentX += values[0];
+                            currentY += values[1];
+                            shape.lineTo(currentX, -currentY);
+                        }
+                        break;
+                        
+                    case 'H': // absolute horizontal
+                        if (values.length >= 1) {
+                            currentX = values[0];
+                            shape.lineTo(currentX, -currentY);
+                        }
+                        break;
+                        
+                    case 'h': // relative horizontal
+                        if (values.length >= 1) {
+                            currentX += values[0];
+                            shape.lineTo(currentX, -currentY);
+                        }
+                        break;
+                        
+                    case 'V': // absolute vertical
+                        if (values.length >= 1) {
+                            currentY = values[0];
+                            shape.lineTo(currentX, -currentY);
+                        }
+                        break;
+                        
+                    case 'v': // relative vertical
+                        if (values.length >= 1) {
+                            currentY += values[0];
+                            shape.lineTo(currentX, -currentY);
+                        }
+                        break;
+                        
+                    case 'C': // absolute cubic bezier
+                        for (let i = 0; i + 5 < values.length; i += 6) {
+                            shape.bezierCurveTo(
+                                values[i], -values[i + 1],
+                                values[i + 2], -values[i + 3],
+                                values[i + 4], -values[i + 5]
+                            );
+                            currentX = values[i + 4];
+                            currentY = values[i + 5];
+                        }
+                        break;
+                        
+                    case 'c': // relative cubic bezier
+                        for (let i = 0; i + 5 < values.length; i += 6) {
+                            shape.bezierCurveTo(
+                                currentX + values[i], -(currentY + values[i + 1]),
+                                currentX + values[i + 2], -(currentY + values[i + 3]),
+                                currentX + values[i + 4], -(currentY + values[i + 5])
+                            );
+                            currentX += values[i + 4];
+                            currentY += values[i + 5];
+                        }
+                        break;
+                        
+                    case 'Z':
+                    case 'z':
+                        shape.lineTo(startX, -startY);
+                        break;
+                }
             });
+            
+            return shape;
         }
-
+        
+        // Add part to 3D
         function addPartTo3D(svg, contentData = null) {
+            console.log('Adding part with content:', contentData);
+            
             try {
+                // Create a plane with SVG as texture using Data URL
                 const canvas = document.createElement('canvas');
                 canvas.width = 512;
                 canvas.height = 512;
                 const ctx = canvas.getContext('2d');
+                
+                // Create SVG string
                 const svgString = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${svg.viewBox}" width="512" height="512"><path d="${svg.path}" fill="white"/></svg>`;
+                
                 const img = new Image();
+                
                 img.onload = function() {
                     ctx.clearRect(0, 0, 512, 512);
                     ctx.drawImage(img, 0, 0, 512, 512);
+                    
                     const texture = new THREE.CanvasTexture(canvas);
                     texture.needsUpdate = true;
+                    
+                    // Get currently selected color
                     const colors = colorPalette[selectedColorIndex];
+                    console.log('Adding part with color:', selectedColorIndex, colors);
+                    
+                    // Create group for multiple layers to give thickness
                     const group = new THREE.Group();
+                    
+                    // Create many thin layers (0.5 spacing) for solid appearance
                     const thickness = 15;
                     const layers = 30;
+                    
                     for (let i = 0; i < layers; i++) {
                         const z = -thickness/2 + (i / (layers - 1)) * thickness;
+                        
                         const geometry = new THREE.PlaneGeometry(50, 50);
+                        
+                        // Apply selected color to each layer
                         const material = new THREE.MeshPhongMaterial({
                             map: texture,
                             color: colors.base,
@@ -624,40 +725,59 @@
                             alphaTest: 0.1,
                             depthWrite: true
                         });
+                        
                         const mesh = new THREE.Mesh(geometry, material);
                         mesh.position.z = z;
                         group.add(mesh);
                     }
-                    const spreadRadius = 25;
+                    
+                    // Auto-combine positioning - parts cluster together at center
+                    const count = addedMeshes.length;
+                    
+                    // Random position near center with slight spread
+                    const spreadRadius = 25; // How far from center parts can be
                     const randomAngle = Math.random() * Math.PI * 2;
                     const randomDistance = Math.random() * spreadRadius;
+                    
                     group.position.x = Math.cos(randomAngle) * randomDistance;
                     group.position.y = Math.sin(randomAngle) * randomDistance;
-                    group.position.z = (Math.random() - 0.5) * 30;
+                    group.position.z = (Math.random() - 0.5) * 30; // Random depth
+                    
+                    // Random rotation for variety
                     group.rotation.x = Math.random() * Math.PI * 2;
                     group.rotation.y = Math.random() * Math.PI * 2;
                     group.rotation.z = Math.random() * Math.PI * 2;
+                    
                     group.userData.svgId = svg.id;
                     group.userData.selected = false;
                     group.userData.baseScale = 1.0;
                     group.userData.originalPosition = group.position.clone();
-                    group.userData.contentData = contentData;
+                    group.userData.contentData = contentData; // Store user content
+                    
+                    // Add random animation type for each part
                     group.userData.animationType = Math.floor(Math.random() * 4);
                     group.userData.animationSpeed = 0.5 + Math.random() * 1.5;
                     group.userData.animationOffset = Math.random() * Math.PI * 2;
+                    
                     scene.add(group);
                     addedMeshes.push(group);
+                    
                     document.getElementById('part-count').textContent = addedMeshes.length;
                 };
+                
                 img.onerror = function(e) {
                     console.error('Failed to load SVG image for', svg.id, e);
                 };
+                
+                // Use data URL instead of blob
                 img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgString);
+                
             } catch (error) {
                 console.error('Error adding part:', svg.id, error.message);
             }
         }
         
+        // Remove last part
         function removeLastPart() {
             if (addedMeshes.length > 0) {
                 const mesh = addedMeshes.pop();
@@ -668,40 +788,80 @@
             }
         }
         
-        // ... (Interaction functions: getMousePosition, checkIntersection, selectMesh, deselectMesh, etc. are included here) ...
-
+        // Mouse interaction
+        let isDragging = false;
+        let previousMousePosition = { x: 0, y: 0 };
+        let targetRotation = { x: 0.3, y: 0 };
+        let currentRotation = { x: 0.3, y: 0 };
+        
+        // Get mouse position in normalized device coordinates
         function getMousePosition(event) {
             const rect = canvas.getBoundingClientRect();
             mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
             mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
         }
         
+        // Check for mesh intersection
         function checkIntersection(event) {
             getMousePosition(event);
             raycaster.setFromCamera(mouse, camera);
-            const intersects = raycaster.intersectObjects(addedMeshes, true);
+            
+            console.log('=== INTERSECTION CHECK ===');
+            console.log('Mouse position:', mouse);
+            console.log('addedMeshes count:', addedMeshes.length);
+            
+            // Try intersecting all objects in the scene
+            const allIntersects = raycaster.intersectObjects(scene.children, true);
+            console.log('All scene intersects:', allIntersects.length);
+            
+            // Try intersecting just addedMeshes
+            const intersects = raycaster.intersectObjects(addedMeshes, true); // true = recursive
+            
+            console.log('addedMeshes intersects:', intersects.length);
             
             if (intersects.length > 0) {
+                console.log('First 3 intersects:', intersects.slice(0, 3));
+                
+                // Find the parent group
                 let object = intersects[0].object;
+                console.log('First intersected object:', object);
+                console.log('Object type:', object.type);
+                console.log('Object parent:', object.parent);
+                
+                // Traverse up to find the group in addedMeshes
                 let iterations = 0;
                 while (object.parent && !addedMeshes.includes(object) && iterations < 10) {
+                    console.log('Traversing up, current object:', object);
                     object = object.parent;
                     iterations++;
                 }
+                
+                console.log('Final object after traversal:', object);
+                console.log('Is in addedMeshes:', addedMeshes.includes(object));
+                console.log('addedMeshes:', addedMeshes);
+                
                 return object;
             }
+            
+            console.log('No intersects found');
             return null;
         }
-
+        
+        // Deselect mesh
         function deselectMesh() {
             if (selectedMesh) {
+                // Remove selection indicator (outline or glow)
                 selectedMesh.userData.selected = false;
                 selectedMesh = null;
                 document.getElementById('selected-info').classList.remove('active');
+                
+                // Disable edit button
                 const editBtn = document.getElementById('edit-selected-btn');
                 if (editBtn) {
                     editBtn.disabled = true;
                 }
+                
+                // Reset sliders
                 document.getElementById('scale-slider').value = 100;
                 document.getElementById('scale-value').textContent = '100%';
                 document.getElementById('rotation-x-slider').value = 0;
@@ -713,29 +873,41 @@
             }
         }
         
+        // Select mesh
         function selectMesh(mesh, openPanel = false) {
             deselectMesh();
             selectedMesh = mesh;
             selectedMesh.userData.selected = true;
+            
+            // Enable edit button
             const editBtn = document.getElementById('edit-selected-btn');
             if (editBtn) {
                 editBtn.disabled = false;
             }
+            
+            // Only open panel if explicitly requested
             if (openPanel) {
                 openEditPanel();
             }
         }
         
+        // New function to open edit panel
         function openEditPanel() {
             if (!selectedMesh) return;
+            
             document.getElementById('selected-info').classList.add('active');
+            
+            // Update scale slider to match current scale
             const currentScale = Math.round(selectedMesh.scale.x * 100);
             document.getElementById('scale-slider').value = currentScale;
             document.getElementById('scale-value').textContent = currentScale + '%';
+            
+            // Update rotation sliders
             if (selectedMesh.userData.manualRotation) {
                 const rotX = Math.round((selectedMesh.userData.manualRotation.x * 180) / Math.PI);
                 const rotY = Math.round((selectedMesh.userData.manualRotation.y * 180) / Math.PI);
                 const rotZ = Math.round((selectedMesh.userData.manualRotation.z * 180) / Math.PI);
+                
                 document.getElementById('rotation-x-slider').value = rotX;
                 document.getElementById('rotation-x-value').textContent = rotX + '°';
                 document.getElementById('rotation-y-slider').value = rotY;
@@ -743,74 +915,133 @@
                 document.getElementById('rotation-z-slider').value = rotZ;
                 document.getElementById('rotation-z-value').textContent = rotZ + '°';
             }
+            
+            // Display stored content
             displayContent(selectedMesh.userData.contentData);
         }
         
+        // Display content in the panel
         function displayContent(contentData) {
             const contentPreview = document.getElementById('content-preview');
+            
             if (!contentData || !contentData.content) {
                 contentPreview.innerHTML = '<div style="color: #888; font-style: italic;">No content</div>';
                 return;
             }
+            
             if (contentData.type === 'text') {
-                contentPreview.innerHTML = `<div style="white-space: pre-wrap; line-height: 1.6;">${contentData.content || '<span style="color: #888;">Empty message</span>'}</div>`;
+                contentPreview.innerHTML = `
+                    <div style="white-space: pre-wrap; line-height: 1.6;">
+                        ${contentData.content || '<span style="color: #888;">Empty message</span>'}
+                    </div>
+                `;
             } else if (contentData.type === 'image') {
-                contentPreview.innerHTML = `<img src="${contentData.content}" style="max-width: 100%; border-radius: 6px; display: block; margin: 0 auto;">`;
+                contentPreview.innerHTML = `
+                    <img src="${contentData.content}" 
+                         style="max-width: 100%; border-radius: 6px; display: block; margin: 0 auto;">
+                `;
             } else if (contentData.type === 'drawing') {
-                contentPreview.innerHTML = `<img src="${contentData.content}" style="max-width: 100%; border-radius: 6px; display: block; margin: 0 auto; background: white;">`;
+                contentPreview.innerHTML = `
+                    <img src="${contentData.content}" 
+                         style="max-width: 100%; border-radius: 6px; display: block; margin: 0 auto; background: white;">
+                `;
             }
         }
-
-        // --- Event Listeners and Animation (수정된 로직 반영) ---
-
-        let isDragging = false;
-        let previousMousePosition = { x: 0, y: 0 };
-        let targetRotation = { x: 0.3, y: 0 };
-        let currentRotation = { x: 0.3, y: 0 };
-        let wasDragging = false;
         
         canvas.addEventListener('mousedown', (e) => {
+            console.log('=== MOUSEDOWN EVENT ===');
+            console.log('Mouse down at:', e.offsetX, e.offsetY);
+            console.log('Total meshes in scene:', addedMeshes.length);
+            
+            // Store mousedown position
             const mouseDownX = e.offsetX;
             const mouseDownY = e.offsetY;
+            
+            // Store this for mouseup to check if it was a click or drag
             canvas.dataset.mouseDownX = mouseDownX;
             canvas.dataset.mouseDownY = mouseDownY;
+            
             const intersectedMesh = checkIntersection(e);
             
+            console.log('Intersected mesh:', intersectedMesh);
+            
             if (intersectedMesh && addedMeshes.includes(intersectedMesh)) {
+                console.log('✓ Mesh found and in addedMeshes - selecting!');
+                // Select and prepare to drag
                 selectMesh(intersectedMesh);
                 isDraggingObject = true;
-                dragPlane.setFromNormalAndCoplanarPoint(camera.getWorldDirection(dragPlane.normal), selectedMesh.position);
+                
+                // Set up drag plane
+                dragPlane.setFromNormalAndCoplanarPoint(
+                    camera.getWorldDirection(dragPlane.normal),
+                    selectedMesh.position
+                );
+                
+                // Calculate offset
                 raycaster.setFromCamera(mouse, camera);
                 raycaster.ray.intersectPlane(dragPlane, intersection);
                 offset.copy(intersection).sub(selectedMesh.position);
             } else {
+                console.log('✗ No valid mesh - starting camera rotation');
+                // Start camera rotation  
                 isDragging = true;
                 deselectMesh();
             }
+            
             previousMousePosition = { x: e.offsetX, y: e.offsetY };
         });
         
+        // Add click event as backup for selection (no dragging)
+        canvas.addEventListener('click', (e) => {
+            // Only handle click if we weren't dragging
+            if (!wasDragging) {
+                console.log('Click event - trying to select');
+                const intersectedMesh = checkIntersection(e);
+                if (intersectedMesh && addedMeshes.includes(intersectedMesh)) {
+                    console.log('Click selected mesh!');
+                    selectMesh(intersectedMesh);
+                }
+            }
+        });
+        
+        let wasDragging = false;
+        
         canvas.addEventListener('mouseup', (e) => {
+            console.log('=== MOUSEUP EVENT ===');
+            
+            // Check if mouse moved significantly (more than 5 pixels = drag, less = click)
             const mouseDownX = parseFloat(canvas.dataset.mouseDownX || 0);
             const mouseDownY = parseFloat(canvas.dataset.mouseDownY || 0);
             const deltaX = Math.abs(e.offsetX - mouseDownX);
             const deltaY = Math.abs(e.offsetY - mouseDownY);
             const totalDelta = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
             
+            console.log('Mouse movement delta:', totalDelta);
+            
             if (totalDelta < 5) {
+                console.log('Movement < 5px - treating as CLICK');
                 wasDragging = false;
+                
+                // This was a click, not a drag - try to select
                 if (!isDraggingObject) {
                     const intersectedMesh = checkIntersection(e);
                     if (intersectedMesh && addedMeshes.includes(intersectedMesh)) {
+                        console.log('CLICK selecting mesh on mouseup!');
                         selectMesh(intersectedMesh);
                     }
                 }
             } else {
+                console.log('Movement >= 5px - was a DRAG');
                 wasDragging = isDragging || isDraggingObject;
             }
+            
             isDragging = false;
             isDraggingObject = false;
-            setTimeout(() => { wasDragging = false; }, 100);
+            
+            // Clear wasDragging after a short delay
+            setTimeout(() => {
+                wasDragging = false;
+            }, 100);
         });
         
         canvas.addEventListener('mouseleave', () => {
@@ -820,148 +1051,467 @@
         
         canvas.addEventListener('mousemove', (e) => {
             if (isDraggingObject && selectedMesh) {
+                // Move selected object
                 getMousePosition(e);
                 raycaster.setFromCamera(mouse, camera);
                 raycaster.ray.intersectPlane(dragPlane, intersection);
+                
                 const newPosition = intersection.sub(offset);
                 
+                // Apply axis constraint based on currentMovementAxis
                 if (currentMovementAxis === 'x') {
+                    // Only move along X axis - lock Y and Z
                     selectedMesh.position.x = newPosition.x;
+                    // Keep Y and Z unchanged
                 } else if (currentMovementAxis === 'y') {
+                    // Only move along Y axis - lock X and Z
                     selectedMesh.position.y = newPosition.y;
+                    // Keep X and Z unchanged
                 } else {
+                    // XY plane movement (default) - lock Z
                     selectedMesh.position.x = newPosition.x;
                     selectedMesh.position.y = newPosition.y;
+                    // Keep Z unchanged
                 }
                 
+                // Store original position for animation
                 if (!selectedMesh.userData.originalPosition) {
                     selectedMesh.userData.originalPosition = selectedMesh.position.clone();
                 }
                 selectedMesh.userData.originalPosition.copy(selectedMesh.position);
                 
             } else if (isDragging) {
-                const deltaMove = { x: e.offsetX - previousMousePosition.x, y: e.offsetY - previousMousePosition.y };
+                // Rotate camera
+                const deltaMove = {
+                    x: e.offsetX - previousMousePosition.x,
+                    y: e.offsetY - previousMousePosition.y
+                };
+                
                 targetRotation.y += deltaMove.x * 0.01;
                 targetRotation.x += deltaMove.y * 0.01;
             }
+            
             previousMousePosition = { x: e.offsetX, y: e.offsetY };
         });
         
+        // Scale slider for selected object
+        const scaleSlider = document.getElementById('scale-slider');
+        const scaleValue = document.getElementById('scale-value');
+        
+        scaleSlider.addEventListener('input', (e) => {
+            if (selectedMesh) {
+                const scale = e.target.value / 100;
+                selectedMesh.scale.setScalar(scale);
+                selectedMesh.userData.baseScale = scale; // Store base scale
+                scaleValue.textContent = e.target.value + '%';
+            }
+        });
+        
+        // Rotation sliders for selected object
+        const rotationXSlider = document.getElementById('rotation-x-slider');
+        const rotationYSlider = document.getElementById('rotation-y-slider');
+        const rotationZSlider = document.getElementById('rotation-z-slider');
+        const rotationXValue = document.getElementById('rotation-x-value');
+        const rotationYValue = document.getElementById('rotation-y-value');
+        const rotationZValue = document.getElementById('rotation-z-value');
+        
+        rotationXSlider.addEventListener('input', (e) => {
+            if (selectedMesh) {
+                const degrees = e.target.value;
+                selectedMesh.userData.manualRotation = selectedMesh.userData.manualRotation || { x: 0, y: 0, z: 0 };
+                selectedMesh.userData.manualRotation.x = (degrees * Math.PI) / 180;
+                rotationXValue.textContent = degrees + '°';
+            }
+        });
+        
+        rotationYSlider.addEventListener('input', (e) => {
+            if (selectedMesh) {
+                const degrees = e.target.value;
+                selectedMesh.userData.manualRotation = selectedMesh.userData.manualRotation || { x: 0, y: 0, z: 0 };
+                selectedMesh.userData.manualRotation.y = (degrees * Math.PI) / 180;
+                rotationYValue.textContent = degrees + '°';
+            }
+        });
+        
+        rotationZSlider.addEventListener('input', (e) => {
+            if (selectedMesh) {
+                const degrees = e.target.value;
+                selectedMesh.userData.manualRotation = selectedMesh.userData.manualRotation || { x: 0, y: 0, z: 0 };
+                selectedMesh.userData.manualRotation.z = (degrees * Math.PI) / 180;
+                rotationZValue.textContent = degrees + '°';
+            }
+        });
+        
+        // Delete button
+        document.getElementById('delete-btn').addEventListener('click', () => {
+            if (selectedMesh) {
+                const index = addedMeshes.indexOf(selectedMesh);
+                if (index > -1) {
+                    scene.remove(selectedMesh);
+                    addedMeshes.splice(index, 1);
+                    
+                    // Clean up
+                    selectedMesh.traverse((child) => {
+                        if (child.geometry) child.geometry.dispose();
+                        if (child.material) child.material.dispose();
+                    });
+                    
+                    deselectMesh();
+                    document.getElementById('part-count').textContent = addedMeshes.length;
+                }
+            }
+        });
+        
+        // Delete key to remove selected object
+        document.addEventListener('keydown', (e) => {
+            if ((e.key === 'Delete' || e.key === 'Backspace') && selectedMesh) {
+                e.preventDefault(); // Prevent browser back navigation on Backspace
+                const index = addedMeshes.indexOf(selectedMesh);
+                if (index > -1) {
+                    scene.remove(selectedMesh);
+                    addedMeshes.splice(index, 1);
+                    
+                    // Clean up
+                    selectedMesh.traverse((child) => {
+                        if (child.geometry) child.geometry.dispose();
+                        if (child.material) child.material.dispose();
+                    });
+                    
+                    deselectMesh();
+                    document.getElementById('part-count').textContent = addedMeshes.length;
+                }
+            }
+        });
+        
+        // Animation
         function animate() {
             requestAnimationFrame(animate);
+            
             currentRotation.x += (targetRotation.x - currentRotation.x) * 0.1;
             currentRotation.y += (targetRotation.y - currentRotation.y) * 0.1;
+            
             const time = Date.now() * 0.001;
             
-            addedMeshes.forEach((mesh) => {
+            addedMeshes.forEach((mesh, i) => {
+                // Base rotation from user interaction
                 const baseRotX = currentRotation.x;
                 const baseRotY = currentRotation.y;
+                
+                // Add selection glow effect
                 if (mesh.userData.selected) {
-                    mesh.traverse((child) => { if (child.material) { child.material.emissiveIntensity = 0.5 + Math.sin(time * 3) * 0.2; } });
+                    mesh.traverse((child) => {
+                        if (child.material) {
+                            // Pulsing glow effect
+                            child.material.emissiveIntensity = 0.5 + Math.sin(time * 3) * 0.2;
+                        }
+                    });
+                    // Don't override scale - user can control it with slider
+                    // Just add subtle visual feedback with emissive
                 } else {
-                    mesh.traverse((child) => { if (child.material) { child.material.emissiveIntensity = 0.2; } });
+                    mesh.traverse((child) => {
+                        if (child.material) {
+                            child.material.emissiveIntensity = 0.2;
+                        }
+                    });
                 }
+                
+                // Apply manual rotation if set
                 const manualRot = mesh.userData.manualRotation || { x: 0, y: 0, z: 0 };
+                
+                // No floating animation - just apply rotations
                 mesh.rotation.x = baseRotX + manualRot.x;
                 mesh.rotation.y = baseRotY + manualRot.y;
                 mesh.rotation.z = manualRot.z;
             });
+            
             renderer.render(scene, camera);
         }
+        
         animate();
-
-        // --- CONTROL BUTTONS LISTENERS (수정 반영) ---
-
-        // 1. Edit Selected Button
+        
+        // Edit Selected Button
         document.getElementById('edit-selected-btn').addEventListener('click', () => {
             if (selectedMesh) {
                 openEditPanel();
             }
         });
-
-        // 2. Reset Button
+        
+        
+        // Modal Management
+        let pendingSvgData = null;
+        let currentContentType = 'text';
+        let uploadedImageData = null;
+        let drawingCanvasData = null;
+        let isEditMode = false;
+        let editingMesh = null;
+        
+        const modal = document.getElementById('upload-modal');
+        const textInputArea = document.getElementById('text-input-area');
+        const imageInputArea = document.getElementById('image-input-area');
+        const drawingInputArea = document.getElementById('drawing-input-area');
+        
+        // Edit content button
+        document.getElementById('edit-content-btn').addEventListener('click', () => {
+            if (!selectedMesh) return;
+            
+            isEditMode = true;
+            editingMesh = selectedMesh;
+            
+            const contentData = selectedMesh.userData.contentData;
+            
+            if (contentData) {
+                // Load existing content into modal
+                currentContentType = contentData.type;
+                
+                // Update content type buttons
+                document.querySelectorAll('.content-type-btn').forEach(b => {
+                    b.style.background = '#333';
+                    b.style.color = 'white';
+                    b.classList.remove('active');
+                });
+                const activeBtn = document.querySelector(`[data-type="${contentData.type}"]`);
+                if (activeBtn) {
+                    activeBtn.style.background = '#00ff88';
+                    activeBtn.style.color = '#000';
+                    activeBtn.classList.add('active');
+                }
+                
+                // Show correct input area
+                textInputArea.style.display = contentData.type === 'text' ? 'block' : 'none';
+                imageInputArea.style.display = contentData.type === 'image' ? 'block' : 'none';
+                drawingInputArea.style.display = contentData.type === 'drawing' ? 'block' : 'none';
+                
+                // Load content
+                if (contentData.type === 'text') {
+                    document.getElementById('text-content').value = contentData.content || '';
+                } else if (contentData.type === 'image') {
+                    uploadedImageData = contentData.content;
+                    document.getElementById('image-preview').innerHTML = `
+                        <img src="${uploadedImageData}" style="max-width: 100%; max-height: 200px; border-radius: 8px;">
+                    `;
+                } else if (contentData.type === 'drawing') {
+                    const img = new Image();
+                    img.onload = () => {
+                        drawingCtx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
+                        drawingCtx.drawImage(img, 0, 0);
+                    };
+                    img.src = contentData.content;
+                }
+            }
+            
+            modal.style.display = 'flex';
+        });
+        
+        // Content type switcher
+        document.querySelectorAll('.content-type-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                currentContentType = btn.dataset.type;
+                
+                // Update button styles
+                document.querySelectorAll('.content-type-btn').forEach(b => {
+                    b.style.background = '#333';
+                    b.style.color = 'white';
+                    b.classList.remove('active');
+                });
+                btn.style.background = '#00ff88';
+                btn.style.color = '#000';
+                btn.classList.add('active');
+                
+                // Show/hide input areas
+                textInputArea.style.display = currentContentType === 'text' ? 'block' : 'none';
+                imageInputArea.style.display = currentContentType === 'image' ? 'block' : 'none';
+                drawingInputArea.style.display = currentContentType === 'drawing' ? 'block' : 'none';
+            });
+        });
+        
+        // Image upload handler
+        document.getElementById('image-upload').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    uploadedImageData = event.target.result;
+                    document.getElementById('image-preview').innerHTML = `
+                        <img src="${uploadedImageData}" style="max-width: 100%; max-height: 200px; border-radius: 8px;">
+                    `;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        // Drawing canvas setup
+        const drawingCanvas = document.getElementById('drawing-canvas');
+        const drawingCtx = drawingCanvas.getContext('2d');
+        let isDrawing = false;
+        
+        drawingCanvas.addEventListener('mousedown', () => isDrawing = true);
+        drawingCanvas.addEventListener('mouseup', () => {
+            isDrawing = false;
+            drawingCtx.beginPath();
+        });
+        drawingCanvas.addEventListener('mouseleave', () => {
+            isDrawing = false;
+            drawingCtx.beginPath();
+        });
+        
+        drawingCanvas.addEventListener('mousemove', (e) => {
+            if (!isDrawing) return;
+            
+            const rect = drawingCanvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            drawingCtx.lineWidth = document.getElementById('brush-size').value;
+            drawingCtx.lineCap = 'round';
+            drawingCtx.strokeStyle = document.getElementById('drawing-color').value;
+            
+            drawingCtx.lineTo(x, y);
+            drawingCtx.stroke();
+            drawingCtx.beginPath();
+            drawingCtx.moveTo(x, y);
+        });
+        
+        document.getElementById('clear-drawing').addEventListener('click', () => {
+            drawingCtx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
+        });
+        
+        // Modal cancel
+        document.getElementById('modal-cancel').addEventListener('click', () => {
+            modal.style.display = 'none';
+            pendingSvgData = null;
+            isEditMode = false;
+            editingMesh = null;
+            // Reset form
+            document.getElementById('text-content').value = '';
+            document.getElementById('image-upload').value = '';
+            document.getElementById('image-preview').innerHTML = '';
+            uploadedImageData = null;
+            drawingCtx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
+        });
+        
+        // Modal confirm
+        document.getElementById('modal-confirm').addEventListener('click', () => {
+            let contentData = null;
+            
+            if (currentContentType === 'text') {
+                contentData = {
+                    type: 'text',
+                    content: document.getElementById('text-content').value
+                };
+            } else if (currentContentType === 'image') {
+                contentData = {
+                    type: 'image',
+                    content: uploadedImageData
+                };
+            } else if (currentContentType === 'drawing') {
+                contentData = {
+                    type: 'drawing',
+                    content: drawingCanvas.toDataURL()
+                };
+            }
+            
+            if (isEditMode && editingMesh) {
+                // Update existing part's content
+                editingMesh.userData.contentData = contentData;
+                console.log('Updated content for existing part');
+                
+                // Refresh display if still selected
+                if (selectedMesh === editingMesh) {
+                    displayContent(contentData);
+                }
+            } else if (pendingSvgData) {
+                // Add new part to 3D with content
+                addPartTo3D(pendingSvgData, contentData);
+            }
+            
+            // Close modal and reset
+            modal.style.display = 'none';
+            pendingSvgData = null;
+            isEditMode = false;
+            editingMesh = null;
+            document.getElementById('text-content').value = '';
+            document.getElementById('image-upload').value = '';
+            document.getElementById('image-preview').innerHTML = '';
+            uploadedImageData = null;
+            drawingCtx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
+        });
+        
+        // Render parts UI
+        function renderParts() {
+            const leftGrid = document.getElementById('parts-left');
+            const rightGrid = document.getElementById('parts-right');
+            
+            allSvgPaths.forEach((svg, index) => {
+                const partItem = document.createElement('div');
+                partItem.className = 'part-item';
+                partItem.dataset.partId = svg.id;
+                partItem.innerHTML = `
+                    <svg viewBox="${svg.viewBox}" xmlns="http://www.w3.org/2000/svg">
+                        <path d="${svg.path}"/>
+                    </svg>
+                `;
+                
+                partItem.addEventListener('click', () => {
+                    partItem.classList.add('selected');
+                    setTimeout(() => partItem.classList.remove('selected'), 300);
+                    
+                    // Open modal instead of directly adding
+                    pendingSvgData = svg;
+                    modal.style.display = 'flex';
+                });
+                
+                // Basic shapes (id 21-24) go to left, custom parts go to right
+                if (svg.id >= 21 && svg.id <= 24) {
+                    leftGrid.appendChild(partItem);
+                } else {
+                    rightGrid.appendChild(partItem);
+                }
+            });
+        }
+        
+        // Controls
         document.getElementById('reset-btn').addEventListener('click', () => {
             while (addedMeshes.length > 0) {
                 removeLastPart();
             }
         });
-
-        // 3. View Gallery Button (404 오류 해결을 위해 경로를 확인해주세요.)
+        
         document.getElementById('view-gallery-btn').addEventListener('click', () => {
-            window.location.href = 'timecapsule-gallery.html'; 
+            window.location.href = 'timecapsule-gallery.html';
         });
-
-        // 4. Create Time Capsule Button (Open Bury Modal)
+        
         document.getElementById('save-btn').addEventListener('click', () => {
             if (addedMeshes.length === 0) {
                 alert('Please add at least 1 part to your time capsule!');
                 return;
             }
             
+            // Count parts with content
             const partsWithContent = addedMeshes.filter(mesh => 
                 mesh.userData.contentData && mesh.userData.contentData.content
             ).length;
             
+            // Update summary
             document.getElementById('summary-parts').textContent = addedMeshes.length;
             document.getElementById('summary-content').textContent = partsWithContent;
             
+            // Set minimum date to tomorrow
             const tomorrow = new Date();
             tomorrow.setDate(tomorrow.getDate() + 1);
             const minDate = tomorrow.toISOString().split('T')[0];
             document.getElementById('open-date').setAttribute('min', minDate);
             
+            // Open bury modal
             document.getElementById('bury-modal').style.display = 'flex';
         });
-
-        // --- MODAL AND BURY/SHARE LOGIC (통합) ---
-
+        
+        // Bury Modal Management
         const buryModal = document.getElementById('bury-modal');
-        const shareModal = document.getElementById('share-modal');
         const openDateInput = document.getElementById('open-date');
         const timeDisplay = document.getElementById('time-display');
         const countdownDisplay = document.getElementById('countdown-display');
-        const shareLinkInput = document.getElementById('capsule-share-link');
-        let pendingSvgData = null;
-        let currentContentType = 'text';
-        let uploadedImageData = null;
-        const modal = document.getElementById('upload-modal');
-        const textInputArea = document.getElementById('text-input-area');
-        const imageInputArea = document.getElementById('image-input-area');
-        const drawingInputArea = document.getElementById('drawing-input-area');
-        const drawingCanvas = document.getElementById('drawing-canvas');
-        const drawingCtx = drawingCanvas.getContext('2d');
-        let isEditMode = false;
-        let editingMesh = null;
-
-        function openShareModal(capsuleData) {
-            const capsuleId = capsuleData.id;
-            const shareLink = `http://localhost:8000/timecapsule-view.html?id=${capsuleId}`; 
-            shareLinkInput.value = shareLink;
-            shareModal.style.display = 'flex';
-        }
         
-        function updateCountdown() {
-            const openDate = new Date(openDateInput.value);
-            const now = new Date();
-            if (!openDateInput.value || openDate <= now) {
-                timeDisplay.style.display = 'none';
-                return;
-            }
-            const diff = openDate - now;
-            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-            const years = Math.floor(days / 365);
-            const remainingDays = days % 365;
-            const months = Math.floor(remainingDays / 30);
-            const finalDays = remainingDays % 30;
-            let countdownText = '';
-            if (years > 0) { countdownText += `${years} year${years > 1 ? 's' : ''} `; }
-            if (months > 0) { countdownText += `${months} month${months > 1 ? 's' : ''} `; }
-            if (finalDays > 0 || countdownText === '') { countdownText += `${finalDays} day${finalDays !== 1 ? 's' : ''}`; }
-            countdownDisplay.textContent = countdownText.trim();
-            timeDisplay.style.display = 'block';
-        }
-
-        // Date Presets and Change Listener
+        // Date preset buttons
         document.querySelectorAll('.date-preset').forEach(btn => {
             btn.addEventListener('click', () => {
                 const months = parseInt(btn.dataset.months);
@@ -969,158 +1519,170 @@
                 futureDate.setMonth(futureDate.getMonth() + months);
                 openDateInput.value = futureDate.toISOString().split('T')[0];
                 updateCountdown();
+                
+                // Visual feedback
+                document.querySelectorAll('.date-preset').forEach(b => {
+                    b.style.background = '#333';
+                });
+                btn.style.background = '#00ff88';
+                btn.style.color = '#000';
+                setTimeout(() => {
+                    btn.style.background = '#333';
+                    btn.style.color = 'white';
+                }, 1000);
             });
         });
-        openDateInput.addEventListener('change', updateCountdown);
-        document.getElementById('bury-cancel').addEventListener('click', () => { buryModal.style.display = 'none'; });
         
-        // Bury Confirm Button (Final Save)
+        // Update countdown when date changes
+        openDateInput.addEventListener('change', updateCountdown);
+        
+        function updateCountdown() {
+            const openDate = new Date(openDateInput.value);
+            const now = new Date();
+            
+            if (!openDateInput.value || openDate <= now) {
+                timeDisplay.style.display = 'none';
+                return;
+            }
+            
+            const diff = openDate - now;
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const years = Math.floor(days / 365);
+            const remainingDays = days % 365;
+            const months = Math.floor(remainingDays / 30);
+            const finalDays = remainingDays % 30;
+            
+            let countdownText = '';
+            if (years > 0) {
+                countdownText += `${years} year${years > 1 ? 's' : ''} `;
+            }
+            if (months > 0) {
+                countdownText += `${months} month${months > 1 ? 's' : ''} `;
+            }
+            if (finalDays > 0 || countdownText === '') {
+                countdownText += `${finalDays} day${finalDays !== 1 ? 's' : ''}`;
+            }
+            
+            countdownDisplay.textContent = countdownText.trim();
+            timeDisplay.style.display = 'block';
+        }
+        
+        // Bury cancel button
+        document.getElementById('bury-cancel').addEventListener('click', () => {
+            buryModal.style.display = 'none';
+            // Reset form
+            document.getElementById('capsule-name').value = '';
+            document.getElementById('open-date').value = '';
+            document.getElementById('future-message').value = '';
+            timeDisplay.style.display = 'none';
+        });
+        
+        // Bury confirm button
         document.getElementById('bury-confirm').addEventListener('click', () => {
             const capsuleName = document.getElementById('capsule-name').value.trim();
             const openDate = document.getElementById('open-date').value;
             const futureMessage = document.getElementById('future-message').value.trim();
             
-            if (!capsuleName) { alert('Please give your time capsule a name!'); return; }
-            if (!openDate || new Date(openDate) <= new Date()) { alert('Please select a future date!'); return; }
+            if (!capsuleName) {
+                alert('Please give your time capsule a name!');
+                return;
+            }
             
+            if (!openDate) {
+                alert('Please select when to open this capsule!');
+                return;
+            }
+            
+            const selectedDate = new Date(openDate);
+            const now = new Date();
+            if (selectedDate <= now) {
+                alert('Please select a future date!');
+                return;
+            }
+            
+            // Create capsule data
             const capsuleData = {
-                id: generateUUID(), 
                 name: capsuleName,
                 openDate: openDate,
                 futureMessage: futureMessage,
                 createdDate: new Date().toISOString(),
                 parts: addedMeshes.map(mesh => ({
                     svgId: mesh.userData.svgId,
-                    position: { x: mesh.position.x, y: mesh.position.y, z: mesh.position.z },
-                    rotation: { x: mesh.rotation.x, y: mesh.rotation.y, z: mesh.rotation.z },
-                    scale: { x: mesh.scale.x, y: mesh.scale.y, z: mesh.scale.z },
+                    position: {
+                        x: mesh.position.x,
+                        y: mesh.position.y,
+                        z: mesh.position.z
+                    },
+                    rotation: {
+                        x: mesh.rotation.x,
+                        y: mesh.rotation.y,
+                        z: mesh.rotation.z
+                    },
+                    scale: {
+                        x: mesh.scale.x,
+                        y: mesh.scale.y,
+                        z: mesh.scale.z
+                    },
                     contentData: mesh.userData.contentData
                 }))
             };
             
+            // Save to localStorage
             const savedCapsules = JSON.parse(localStorage.getItem('timeCapsules') || '[]');
             savedCapsules.push(capsuleData);
             localStorage.setItem('timeCapsules', JSON.stringify(savedCapsules));
             
-            const timeUntil = countdownDisplay.textContent;
-
-            // Display Success Message and Share Button
-            buryModal.querySelector('div').innerHTML = `
-                <div style="background: #2a2a2a; border-radius: 20px; padding: 60px; max-width: 500px; width: 90%; border: 2px solid #00ff88; margin: auto; text-align: center;">
+            console.log('Capsule buried:', capsuleData);
+            
+            // Show success message
+            buryModal.innerHTML = `
+                <div style="background: #2a2a2a; border-radius: 20px; padding: 60px; max-width: 500px; width: 90%; border: 2px solid #00ff88; margin: auto; margin-top: 100px; text-align: center;">
                     <h2 style="color: #00ff88; margin-bottom: 20px; font-size: 32px;">Capsule Buried!</h2>
                     <p style="color: #ccc; line-height: 1.8; margin-bottom: 15px; font-size: 16px;">
-                        "<strong style="color: white;">${capsuleName}</strong>" has been safely buried.
+                        <strong style="color: white;">"${capsuleName}"</strong> has been safely buried.
                     </p>
                     <p style="color: #888; margin-bottom: 30px; font-size: 14px;">
                         It will be opened on <strong style="color: #00ff88;">${new Date(openDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</strong>
                     </p>
-                    <div style="font-size: 28px; font-weight: 700; color: #00ff88; margin-bottom: 30px;">${timeUntil}</div>
-                    <button id="go-to-share-btn" style="padding: 18px 40px; background: #667eea; color: white; border: none; border-radius: 12px; cursor: pointer; font-size: 16px; font-weight: 700;">
-                        Share Capsule Link
-                    </button>
-                    <button onclick="location.reload()" style="padding: 18px 40px; background: #444; color: white; border: none; border-radius: 12px; cursor: pointer; font-size: 16px; font-weight: 700; margin-top: 10px;">
-                        Create Another Capsule
-                    </button>
+                    <div style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 12px; margin-bottom: 30px;">
+                        <div style="font-size: 13px; color: #888; margin-bottom: 8px;">Time until opening:</div>
+                        <div style="font-size: 28px; font-weight: 700; color: #00ff88;">${countdownDisplay.textContent}</div>
+                    </div>
+                    <button onclick="location.reload()" style="padding: 18px 40px; background: #00ff88; color: #000; border: none; border-radius: 12px; cursor: pointer; font-size: 16px; font-weight: 700;">Create Another Capsule</button>
                 </div>
             `;
-            
-            document.getElementById('go-to-share-btn').addEventListener('click', () => {
-                buryModal.style.display = 'none';
-                openShareModal(capsuleData);
-            });
         });
-
-        // --- SHARE MODAL FUNCTIONALITY ---
         
-        document.getElementById('copy-link-btn').addEventListener('click', () => {
-            shareLinkInput.select();
-            shareLinkInput.setSelectionRange(0, 99999);
-            try {
-                navigator.clipboard.writeText(shareLinkInput.value).then(() => {
-                    document.getElementById('copy-link-btn').textContent = '✅ Copied!';
-                    setTimeout(() => { document.getElementById('copy-link-btn').textContent = '📋 Copy'; }, 2000);
-                });
-            } catch (err) {
-                alert('Failed to copy link. Please manually copy: ' + shareLinkInput.value);
-            }
-        });
-
-        document.querySelectorAll('.social-share-btn').forEach(btn => {
+        // Color picker
+        document.querySelectorAll('.color-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                const platform = btn.dataset.platform;
-                const link = shareLinkInput.value;
-                const capsuleName = document.getElementById('capsule-name').value.trim() || 'My Time Capsule';
-                const text = `제가 만든 타임캡슐 '${capsuleName}'이(가) 봉인되었어요! 개봉일에 추억을 확인해 보세요: ${link}`;
-                let shareUrl = '';
-
-                if (platform === 'whatsapp') { shareUrl = `https://wa.me/?text=${encodeURIComponent(text)}`; } 
-                else if (platform === 'telegram') { shareUrl = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(text)}`; } 
-                else if (platform === 'email') { 
-                    const subject = `[타임캡슐 초대] ${capsuleName} 개봉 알림`;
-                    shareUrl = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(text)}`;
-                } else if (platform === 'sms') {
-                    shareUrl = `sms:?&body=${encodeURIComponent(text)}`;
-                }
-                if (shareUrl) { window.open(shareUrl, '_blank'); }
+                document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                selectedColorIndex = parseInt(btn.dataset.color);
+                console.log('Selected color index:', selectedColorIndex, colorPalette[selectedColorIndex]);
             });
         });
-
-        document.getElementById('share-modal-close').addEventListener('click', () => {
-            shareModal.style.display = 'none';
-            location.reload(); 
-        });
-
-        // --- DRAWING AND INITIALIZATION LOGIC ---
-
-        let isDrawing = false;
-        drawingCanvas.addEventListener('mousedown', () => isDrawing = true);
-        drawingCanvas.addEventListener('mouseup', () => { isDrawing = false; drawingCtx.beginPath(); });
-        drawingCanvas.addEventListener('mouseleave', () => { isDrawing = false; drawingCtx.beginPath(); });
-        drawingCanvas.addEventListener('mousemove', (e) => {
-            if (!isDrawing) return;
-            const rect = drawingCanvas.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            drawingCtx.lineWidth = document.getElementById('brush-size').value;
-            drawingCtx.lineCap = 'round';
-            drawingCtx.strokeStyle = document.getElementById('drawing-color').value;
-            drawingCtx.lineTo(x, y);
-            drawingCtx.stroke();
-            drawingCtx.beginPath();
-            drawingCtx.moveTo(x, y);
-        });
-        document.getElementById('clear-drawing').addEventListener('click', () => { drawingCtx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height); });
         
-        // Modal logic (Text, Image, Drawing) ...
-        document.getElementById('modal-cancel').addEventListener('click', () => { /* ... Reset logic ... */ modal.style.display = 'none'; pendingSvgData = null; isEditMode = false; editingMesh = null; document.getElementById('text-content').value = ''; document.getElementById('image-upload').value = ''; document.getElementById('image-preview').innerHTML = ''; uploadedImageData = null; drawingCtx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height); });
-        document.getElementById('modal-confirm').addEventListener('click', () => { /* ... Confirm logic ... */ let contentData = null; if (currentContentType === 'text') { contentData = { type: 'text', content: document.getElementById('text-content').value }; } else if (currentContentType === 'image') { contentData = { type: 'image', content: uploadedImageData }; } else if (currentContentType === 'drawing') { contentData = { type: 'drawing', content: drawingCanvas.toDataURL() }; } if (isEditMode && editingMesh) { editingMesh.userData.contentData = contentData; if (selectedMesh === editingMesh) { displayContent(contentData); } } else if (pendingSvgData) { addPartTo3D(pendingSvgData, contentData); } modal.style.display = 'none'; pendingSvgData = null; isEditMode = false; editingMesh = null; document.getElementById('text-content').value = ''; document.getElementById('image-upload').value = ''; document.getElementById('image-preview').innerHTML = ''; uploadedImageData = null; drawingCtx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height); });
-        document.querySelectorAll('.content-type-btn').forEach(btn => { btn.addEventListener('click', () => { currentContentType = btn.dataset.type; document.querySelectorAll('.content-type-btn').forEach(b => { b.style.background = '#333'; b.style.color = 'white'; b.classList.remove('active'); }); btn.style.background = '#00ff88'; btn.style.color = '#000'; btn.classList.add('active'); document.getElementById('text-input-area').style.display = currentContentType === 'text' ? 'block' : 'none'; document.getElementById('image-input-area').style.display = currentContentType === 'image' ? 'block' : 'none'; document.getElementById('drawing-input-area').style.display = currentContentType === 'drawing' ? 'block' : 'none'; }); });
-        document.getElementById('image-upload').addEventListener('change', (e) => { const file = e.target.files[0]; if (file) { const reader = new FileReader(); reader.onload = (event) => { uploadedImageData = event.target.result; document.getElementById('image-preview').innerHTML = `<img src="${uploadedImageData}" style="max-width: 100%; max-height: 200px; border-radius: 8px;">`; }; reader.readAsDataURL(file); } });
-        
-        // Initial rendering of parts
-        function renderParts() {
-            const leftGrid = document.getElementById('parts-left');
-            const rightGrid = document.getElementById('parts-right');
-            allSvgPaths.forEach((svg) => {
-                const partItem = document.createElement('div');
-                partItem.className = 'part-item';
-                partItem.dataset.partId = svg.id;
-                partItem.innerHTML = `<svg viewBox="${svg.viewBox}" xmlns="http://www.w3.org/2000/svg"><path d="${svg.path}"/></svg>`;
-                partItem.addEventListener('click', () => { partItem.classList.add('selected'); setTimeout(() => partItem.classList.remove('selected'), 300); pendingSvgData = svg; modal.style.display = 'flex'; });
-                if (svg.id >= 21 && svg.id <= 24) { leftGrid.appendChild(partItem); } else { rightGrid.appendChild(partItem); }
+        // Axis selector buttons
+        document.querySelectorAll('.axis-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove active class from all buttons
+                document.querySelectorAll('.axis-btn').forEach(b => {
+                    b.classList.remove('active');
+                    b.style.background = '#333';
+                    b.style.color = 'white';
+                    b.style.borderColor = 'transparent';
+                });
+                // Add active class to clicked button
+                btn.classList.add('active');
+                btn.style.background = '#2a4a3a';
+                btn.style.color = '#00ff88';
+                btn.style.borderColor = '#00ff88';
+                // Update movement axis
+                currentMovementAxis = btn.dataset.axis;
             });
-        }
-
-        document.getElementById('edit-content-btn').addEventListener('click', () => { 
-            if (!selectedMesh) return;
-            isEditMode = true; editingMesh = selectedMesh; const contentData = selectedMesh.userData.contentData;
-            document.querySelectorAll('.content-type-btn').forEach(b => { b.style.background = '#333'; b.style.color = 'white'; b.classList.remove('active'); });
-            if (contentData && contentData.type) { currentContentType = contentData.type; const activeBtn = document.querySelector(`[data-type="${contentData.type}"]`); if (activeBtn) { activeBtn.style.background = '#00ff88'; activeBtn.style.color = '#000'; activeBtn.classList.add('active'); }
-                document.getElementById('text-input-area').style.display = contentData.type === 'text' ? 'block' : 'none'; document.getElementById('image-input-area').style.display = contentData.type === 'image' ? 'block' : 'none'; document.getElementById('drawing-input-area').style.display = contentData.type === 'drawing' ? 'block' : 'none';
-                if (contentData.type === 'text') { document.getElementById('text-content').value = contentData.content || ''; } else if (contentData.type === 'image') { uploadedImageData = contentData.content; document.getElementById('image-preview').innerHTML = `<img src="${uploadedImageData}" style="max-width: 100%; max-height: 200px; border-radius: 8px;">`; } else if (contentData.type === 'drawing') { const img = new Image(); img.onload = () => { drawingCtx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height); drawingCtx.drawImage(img, 0, 0, drawingCanvas.width, drawingCanvas.height); }; img.src = contentData.content; }
-            } modal.style.display = 'flex';
         });
-
+        
         renderParts();
     </script>
 </body>
