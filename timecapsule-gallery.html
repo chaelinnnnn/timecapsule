@@ -1,299 +1,920 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Time Capsule Gallery (3D View)</title>
+    <title>My Time Capsule Gallery</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
-        body {
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
-            background: #2a2a2a;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             overflow: hidden;
         }
-        #gallery-container {
-            position: relative;
+        
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+        }
+        
+        .header-info {
+            display: flex;
+            gap: 30px;
+            font-size: 14px;
+        }
+        
+        #gallery-canvas {
             width: 100vw;
             height: 100vh;
-        }
-        #canvas-3d-gallery {
             display: block;
-            width: 100%;
-            height: 100%;
-        }
-        #ui-overlay {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 15px 20px;
-            border-radius: 8px;
-            text-align: left;
-            z-index: 10;
-        }
-        #status-info {
-            font-size: 14px;
-            color: #00ff88;
-            margin-bottom: 5px;
-        }
-        .back-button {
-            margin-top: 10px;
-            padding: 8px 15px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 6px;
             cursor: pointer;
-            font-size: 13px;
         }
-        .info-panel {
+        
+        .controls {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px 25px;
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+            z-index: 200;
+        }
+        
+        .control-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .control-btn.primary {
+            background: #00ff88;
+            color: #000;
+            border-color: #00ff88;
+        }
+        
+        .capsule-info-panel {
+            position: fixed;
+            right: -400px;
+            top: 0;
+            width: 400px;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(20px);
+            padding: 100px 40px 40px;
+            transition: right 0.3s ease;
+            overflow-y: auto;
+            z-index: 150;
+        }
+        
+        .capsule-info-panel.active {
+            right: 0;
+        }
+        
+        .panel-close {
             position: absolute;
+            top: 30px;
+            right: 30px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 32px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+        
+        .panel-close:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(90deg);
+        }
+        
+        .capsule-detail h2 {
+            color: #00ff88;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+        
+        .date-info {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 12px;
+            margin-bottom: 30px;
+        }
+        
+        .countdown-display {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid #00ff88;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .countdown-label {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+        
+        .countdown-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #00ff88;
+        }
+        
+        .detail-section {
+            margin-bottom: 25px;
+        }
+        
+        .detail-label {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.5);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        
+        .detail-value {
+            font-size: 16px;
+            color: white;
+        }
+        
+        .empty-state {
+            position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.85);
-            padding: 20px;
-            border-radius: 10px;
-            border: 2px solid #00ff88;
-            z-index: 100;
-            display: none;
-            max-width: 300px;
-            pointer-events: none; /* Ignore clicks unless visible */
+            text-align: center;
+            z-index: 10;
+        }
+        
+        .empty-state h2 {
+            font-size: 32px;
+            margin-bottom: 15px;
+        }
+        
+        .empty-state p {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 30px;
+        }
+        
+        .empty-state button {
+            background: #00ff88;
+            color: #000;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .empty-state button:hover {
+            transform: scale(1.05);
         }
     </style>
 </head>
 <body>
-    <div id="gallery-container">
-        <div id="ui-overlay">
-            <h2>My Time Capsule Gallery</h2>
-            <div id="status-info">Total Capsules: 0. Drag to rotate.</div>
-            <button class="back-button" onclick="location.href='timecapsule.html'">
-                ← Back to Builder
-            </button>
+    <div class="header">
+        <h1>⏰ My Time Capsule Gallery</h1>
+        <div class="header-info">
+            <div class="info-item">
+                <span style="opacity: 0.6;">Total Capsules</span>
+                <strong id="total-count">0</strong>
+            </div>
+            <div class="info-item">
+                <span style="opacity: 0.6;">Ready to Open</span>
+                <strong id="ready-count" style="color: #00ff88;">0</strong>
+            </div>
         </div>
+    </div>
 
-        <div id="info-panel" class="info-panel">
-            <h3 id="panel-name" style="color:#00ff88; margin-bottom: 5px;">Capsule Name</h3>
-            <div id="panel-status" style="font-weight: bold; margin-bottom: 10px;"></div>
-            <div id="panel-date" style="color: #ccc; font-size: 13px;">Open Date: --</div>
-            <button id="panel-view-btn" style="
-                margin-top: 15px; padding: 8px 15px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; pointer-events: all;
-            ">
-                View/Open Capsule
-            </button>
+    <canvas id="gallery-canvas"></canvas>
+
+    <div id="empty-state" class="empty-state" style="display: none;">
+        <h2>No Time Capsules Yet</h2>
+        <p>Create your first time capsule to start your collection</p>
+        <button onclick="window.location.href='index.html'">Create Capsule</button>
+    </div>
+
+    <div class="controls">
+        <button class="control-btn" id="rotate-left">← Rotate</button>
+        <button class="control-btn" id="rotate-right">Rotate →</button>
+        <button class="control-btn primary" onclick="window.location.href='index.html'">+ New Capsule</button>
+    </div>
+
+    <div class="capsule-info-panel" id="info-panel">
+        <button class="panel-close" onclick="closePanel()">×</button>
+        <div id="capsule-detail" class="capsule-detail"></div>
+    </div>
+
+    <!-- Share Modal -->
+    <div id="share-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center;">
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px; padding: 40px; max-width: 500px; width: 90%; position: relative;">
+            <button onclick="closeShareModal()" style="position: absolute; top: 15px; right: 20px; background: none; border: none; color: white; font-size: 30px; cursor: pointer;">×</button>
+            
+            <h2 style="color: white; margin-bottom: 20px; font-size: 28px;">🔗 Share Time Capsule</h2>
+            
+            <div style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                <label style="color: rgba(255,255,255,0.8); font-size: 12px; display: block; margin-bottom: 8px;">Share Link</label>
+                <div style="display: flex; gap: 10px;">
+                    <input id="share-url" readonly style="flex: 1; padding: 12px; border-radius: 8px; border: none; font-size: 12px; background: white; color: #000;" value="">
+                    <button onclick="copyShareLink()" style="padding: 12px 20px; background: #00ff88; color: #000; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">Copy</button>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="color: rgba(255,255,255,0.8); font-size: 14px; display: block; margin-bottom: 12px;">Share via</label>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+                    <button onclick="shareViaEmail()" style="padding: 12px; background: rgba(255,255,255,0.1); color: white; border: 2px solid rgba(255,255,255,0.3); border-radius: 8px; cursor: pointer; font-weight: 600;">📧 Email</button>
+                    <button onclick="shareViaTwitter()" style="padding: 12px; background: rgba(255,255,255,0.1); color: white; border: 2px solid rgba(255,255,255,0.3); border-radius: 8px; cursor: pointer; font-weight: 600;">🐦 Twitter</button>
+                    <button onclick="shareViaFacebook()" style="padding: 12px; background: rgba(255,255,255,0.1); color: white; border: 2px solid rgba(255,255,255,0.3); border-radius: 8px; cursor: pointer; font-weight: 600;">📘 Facebook</button>
+                    <button onclick="shareViaWhatsApp()" style="padding: 12px; background: rgba(255,255,255,0.1); color: white; border: 2px solid rgba(255,255,255,0.3); border-radius: 8px; cursor: pointer; font-weight: 600;">💬 WhatsApp</button>
+                </div>
+            </div>
+
+            <div style="border-top: 1px solid rgba(255,255,255,0.2); padding-top: 20px;">
+                <button onclick="downloadCapsuleJSON()" style="width: 100%; padding: 15px; background: rgba(255,255,255,0.1); color: white; border: 2px solid rgba(255,255,255,0.3); border-radius: 8px; cursor: pointer; font-weight: 600;">💾 Download as JSON File</button>
+            </div>
         </div>
-        
-        <canvas id="canvas-3d-gallery"></canvas>
     </div>
 
     <script type="importmap">
     {
         "imports": {
-            "three": "https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.module.js"
+            "three": "https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/"
         }
     }
     </script>
     <script type="module">
         import * as THREE from 'three';
+        import { SVGLoader } from 'three/addons/loaders/SVGLoader.js';
 
-        // --- SCENE SETUP ---
-        const container = document.getElementById('gallery-container');
-        const canvas = document.getElementById('canvas-3d-gallery');
+        const capsules = JSON.parse(localStorage.getItem('timeCapsules') || '[]');
+        console.log('Loaded capsules:', capsules);
+
+        document.getElementById('total-count').textContent = capsules.length;
+        
+        const now = new Date();
+        const readyCount = capsules.filter(c => new Date(c.openDate) <= now).length;
+        document.getElementById('ready-count').textContent = readyCount;
+
+        if (capsules.length === 0) {
+            document.getElementById('empty-state').style.display = 'block';
+        }
+
+        // SVG Shape Data - ALL SHAPES
+        const allSvgPaths = [
+            { id: 1, viewBox: "0 0 120.29 776.67", path: "M58.61,6.74c8.05,7.09,17.3,23.07,20.5,40.22,1.99,9.63,1.77,22.69-2.45,28.51-3.77,5.36-8,5.1-13.41,8.21-10.95,5.19-21.63,26.6-27.59,47.98-3.49,11.94-6.69,23.89-8.65,40.49-3.35,26.91-1.32,60.97,5.77,84.58,17.15,58.2,48.07,53.43,67.98,90.05,8.87,16.21,17.65,44.78,12.44,72.5-4.75,29.19-22.12,41.67-21.96,75.47.04,20.01,5.73,38.68,10.19,55.34,7.97,28.28,14.31,60.57,17.25,93.73,3.32,33.16,1.83,66.22-7.44,92.11-7.61,22.29-18.57,40.78-31.03,40.76-21.79.54-41-45.05-43-95.42-2.5-40.5,2.74-81.86.79-122.49-2.27-49.21-17.85-88.33-22.25-136.52-2.36-22.07-2.58-45.03-1.33-67.54,2.17-34.47,3.97-65.2-2.44-98.14C1.24,202.71-6.87,168.93,8.54,113.28c3.73-13.56,6.68-27.87,7.39-44.13,1.08-19.91,1.74-43.81,9.22-56.66C34.02-3.23,48.02-2.82,58.41,6.56l.19.17Z" },
+            { id: 2, viewBox: "0 0 192.44 631.71", path: "M118.87,12.14c13.81-16.31,33.01-3.54,41.48,20.21,20.36,57.22-12.86,145.95-12.96,213.31-.25,11.48.21,22.89,1.52,34,3.5,29.97,12.72,55.83,21.46,81.8,14.67,41.86,29.34,91.95,18.08,142.1-7.76,37.47-30.12,55.37-43.14,16.41-4.18-13-5.59-28.76-5.59-43.76,1.09-51.13,9.31-90.7-14.19-130.15-15.06-26.51-39.45-32.76-57.36-17.78-19.68,15.12-33.87,49.35-30.58,84.81,1.62,18.85,8.62,36.38,16.83,48.88,8.28,13.15,18.14,23.95,23.15,42.33,6.32,23.74,5.66,55.6,16.43,76.52,3.01,6.39,6.92,11.72,10.62,16.48,3.62,5.31,9.44,10.61,9.37,18.44-1.09,9.93-10.07,13.14-16.82,15.04-18.87,4.19-39.71-5.99-55.83-24.22C-2.82,557.45-8.7,450.45,10.06,366.55c6.16-29.62,15.97-57.13,27.51-80.37,5.46-11.29,11.4-22.48,16.32-33.72,16.27-34.42,17.92-78.71,6.46-118.93-10.71-39.89-35.18-56.79-41.82-95.88-2.06-13.13.07-29.24,6.97-35.58,18.14-12.23,24.16,32.83,37.62,50,5.28,7.38,11.98,11.57,18.63,10.3,17.46-2.85,23.97-34.82,36.97-50.07l.15-.17Z" },
+            { id: 3, viewBox: "0 0 199.85 661.11", path: "M86.86,169.39c24.94,61.78,107.84,157.99,95.51,246.42-9.31,54.67-42.28,75.3-67.75,95.49-15.89,12.35-31.78,17.38-48.39,12.26-11.72-3.23-23.38-8.23-35.18-2.71-12.65,5.5-24.55,22.1-28.89,46-7.34,39.05,4.49,94.18,28.29,94.27,17.34.23,31.95-22.41,45.32-41.4,9.2-13.32,18.41-26.52,27.99-38.8,8.06-10.37,16.38-19.95,25-28.52,15.65-15.87,33.01-28.02,46.65-48.92,27.42-40.35,29.81-115.68,16.82-172.92-18.11-78.77-44.02-100.45-41.4-199.18-.21-32.59,7.11-113.4-10.54-129.24-10.59-7.62-19.76,6.88-29.83,16.89-5.63,6.08-11.49,11.32-17.39,16.31-40.1,30.19-28.13,82.9-6.31,133.8l.11.25Z" },
+            { id: 4, viewBox: "0 0 231.78 656.84", path: "M133.06,533.76c-21.6,42.89,5.94,77.01-5.09,110.55-10.59,25.75-33.77,6.42-44.75-9.79-40.84-55.25,7.39-127.87,36.23-187.91,6.1-15.45,9.58-31.3,11.65-48.34,6.01-45.63-6.33-54.33-17.38-90.97-12.97-44.93,20.67-71.22,22.55-111.59.56-15.95-4.68-32.33-13.24-41.55-27.65-28.87-66.16,31.18-68.25,71.73-1.67,43.22,38.49,70.76,32.1,113.65-2.25,13-9.75,22.89-18.18,26.48-25.1,10.58-52.07-30.63-57.75-66.44-3.39-20,.53-40.61-.42-60.83-.93-25.23-12.09-47.8-10.33-73.28C4.22,115.89,40.97,56.26,69.37,32.64,100.56,6.16,138.87-9.76,173.81,6.67c37.43,18.17,65.71,82.31,56.07,141.54-4.94,31.15-20.54,58.48-23.77,90.04-4.11,44.06,27.02,90.63,7.57,132.51-7.31,16.19-19.84,25.87-30.65,35.48-30.05,25.82-16.89,55.86-29.92,91.65-5.3,13.34-13.79,23.18-19.92,35.62l-.12.25Z" },
+            { id: 5, viewBox: "0 0 155.99 501.32", path: "M52.1,141.33c-7.39,17.69,11.13,47.22,6.93,71.8-2.45,24.67-27.03,42.6-20.94,65.47,8.6,25.9,37.72,36.09,52.25,57.27,9.12,11.78,14.67,28.68,20.46,44.93,4.38,12.33,9.6,23.28,15.47,33.8,6.48,12.09,13.82,25.21,14.77,42.03.84,17.98-6.41,32.1-16.95,39.3-21.13,13.29-50.63.95-66.43-25.62-5.62-9.61-9.29-22.21-10-35.65-1.61-30.03,8.04-54.96-10.47-73.5-9-9.83-20.33-16.64-27.22-31.23-7.63-16.31-6.48-39.58-8.53-59.63-1.06-16.38-3.47-28.05,2.07-39.75,5.98-12.72,18.12-21.44,18.39-39.66.2-14.16-7.69-30.01-12.72-42.06C3.66,136.01-1.11,121.39.3,105.22,4.35,67.41,32.45,35.53,52.36,18.06,64.07,8.22,76.7,1.9,89.82.39c12.5-1.45,25.42,1.07,37.09,8.31,28.82,17.62,38.83,66.28,18.06,96.93-9.57,13.49-22.66,19.16-34.99,21.15-15.43,4.05-47.97-5.23-57.81,14.38l-.07.16Z" },
+            { id: 21, viewBox: "0 0 100 100", path: "M50,5 A45,45 0 1,1 50,95 A45,45 0 1,1 50,5 Z" },
+            { id: 22, viewBox: "0 0 100 100", path: "M10,10 L90,10 L90,90 L10,90 Z" },
+            { id: 23, viewBox: "0 0 100 100", path: "M50,10 L90,90 L10,90 Z" },
+            { id: 24, viewBox: "0 0 100 120", path: "M20,20 L80,20 L80,100 L20,100 Z M25,15 L75,15 L75,20 L25,20 Z M25,100 L75,100 L75,105 L25,105 Z" }
+        ];
+
+        const colorPalette = [
+            0xff6b6b, 0x4ecdc4, 0xf093fb, 0xfeca57,
+            0x48c6ef, 0x96fbc4, 0xa18cd1, 0xfa8bff,
+            0xff9a56, 0xa8edea, 0xffecd2, 0x667eea
+        ];
+
+        // Three.js setup
+        const canvas = document.getElementById('gallery-canvas');
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x330066); // Dark purple background
-        const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+        scene.background = new THREE.Color(0x667eea);
+        scene.fog = new THREE.Fog(0x667eea, 10, 50);
+
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 5, 15);
+        camera.lookAt(0, 0, 0);
+
         const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-
-        const updateRendererSize = () => {
-            renderer.setSize(container.clientWidth, container.clientHeight);
-            camera.aspect = container.clientWidth / container.clientHeight;
-            camera.updateProjectionMatrix();
-        };
-
-        window.addEventListener('resize', updateRendererSize);
-        updateRendererSize();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.shadowMap.enabled = true;
 
         // Lighting
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
         scene.add(ambientLight);
+
         const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        directionalLight.position.set(10, 10, 5);
+        directionalLight.position.set(10, 20, 10);
+        directionalLight.castShadow = true;
         scene.add(directionalLight);
 
-        // Ground Plane (matches screenshot aesthetic)
-        const planeGeometry = new THREE.CylinderGeometry(200, 200, 1, 64);
-        const planeMaterial = new new THREE.MeshPhongMaterial({ color: 0x663399, shininess: 50 });
-        const plane = new THREE.Mesh(planeGeometry, planeMaterial);
-        plane.position.y = -50;
-        scene.add(plane);
+        // Ground
+        const groundGeometry = new THREE.PlaneGeometry(100, 100);
+        const groundMaterial = new THREE.MeshStandardMaterial({
+            color: 0x5a4a7a,
+            roughness: 0.8,
+            metalness: 0.2
+        });
+        const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+        ground.rotation.x = -Math.PI / 2;
+        ground.position.y = -1;
+        ground.receiveShadow = true;
+        scene.add(ground);
 
-        camera.position.set(0, 50, 200);
+        // Function to load SVG and create 3D shape
+        function createShapeFromSVG(svgData, color) {
+            return new Promise((resolve) => {
+                const svgString = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${svgData.viewBox}" width="512" height="512"><path d="${svgData.path}" fill="white"/></svg>`;
+                const loader = new SVGLoader();
+                const svgData2 = loader.parse(svgString);
+                
+                const group = new THREE.Group();
+                const paths = svgData2.paths;
+                
+                for (let i = 0; i < paths.length; i++) {
+                    const path = paths[i];
+                    const shapes = SVGLoader.createShapes(path);
+                    
+                    for (let j = 0; j < shapes.length; j++) {
+                        const shape = shapes[j];
+                        const geometry = new THREE.ExtrudeGeometry(shape, {
+                            depth: 4,
+                            bevelEnabled: true,
+                            bevelThickness: 0.5,
+                            bevelSize: 0.5,
+                            bevelSegments: 3
+                        });
+                        
+                        const material = new THREE.MeshStandardMaterial({
+                            color: color,
+                            metalness: 0.5,
+                            roughness: 0.5,
+                            emissive: color,
+                            emissiveIntensity: 0.2
+                        });
+                        
+                        const mesh = new THREE.Mesh(geometry, material);
+                        mesh.castShadow = true;
+                        group.add(mesh);
+                    }
+                }
+                
+                // Center and scale
+                const box = new THREE.Box3().setFromObject(group);
+                const center = box.getCenter(new THREE.Vector3());
+                group.position.sub(center);
+                
+                const size = box.getSize(new THREE.Vector3());
+                const maxDim = Math.max(size.x, size.y, size.z);
+                const scale = 1.5 / maxDim;
+                group.scale.setScalar(scale);
+                
+                resolve(group);
+            });
+        }
 
-        // State for Interaction
-        let targetRotation = 0;
-        let currentRotation = 0;
-        let isDragging = false;
-        let previousMousePosition = { x: 0, y: 0 };
+        // Create capsule objects
+        const capsuleObjects = [];
+        const radius = capsules.length > 6 ? 10 : 8;
+
+        async function loadCapsules() {
+            for (let index = 0; index < capsules.length; index++) {
+                const capsuleData = capsules[index];
+                const angle = (index / capsules.length) * Math.PI * 2;
+                const x = Math.cos(angle) * radius;
+                const z = Math.sin(angle) * radius;
+
+                const openDate = new Date(capsuleData.openDate);
+                const now = new Date();
+                const isLocked = openDate > now;
+
+                const group = new THREE.Group();
+
+                if (isLocked) {
+                    // LOCKED - Simple capsule
+                    const bodyGeometry = new THREE.CylinderGeometry(0.8, 0.8, 2, 32);
+                    const bodyMaterial = new THREE.MeshStandardMaterial({
+                        color: 0x9b7fbf,
+                        metalness: 0.7,
+                        roughness: 0.3,
+                        emissive: 0x6b4f8a,
+                        emissiveIntensity: 0.3
+                    });
+                    const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+                    body.castShadow = true;
+                    group.add(body);
+
+                    const capGeometry = new THREE.SphereGeometry(0.8, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2);
+                    const cap = new THREE.Mesh(capGeometry, bodyMaterial);
+                    cap.position.y = 1;
+                    cap.castShadow = true;
+                    group.add(cap);
+
+                    const bottomCap = new THREE.Mesh(capGeometry, bodyMaterial);
+                    bottomCap.position.y = -1;
+                    bottomCap.rotation.x = Math.PI;
+                    bottomCap.castShadow = true;
+                    group.add(bottomCap);
+
+                    // Lock icon
+                    const lockGeometry = new THREE.TorusGeometry(0.3, 0.1, 16, 32);
+                    const lockMaterial = new THREE.MeshStandardMaterial({
+                        color: 0xffaa00,
+                        metalness: 0.9,
+                        roughness: 0.1,
+                        emissive: 0xffaa00,
+                        emissiveIntensity: 0.5
+                    });
+                    const lockRing = new THREE.Mesh(lockGeometry, lockMaterial);
+                    lockRing.rotation.x = Math.PI / 2;
+                    lockRing.position.y = 0;
+                    group.add(lockRing);
+
+                    const lockBodyGeometry = new THREE.BoxGeometry(0.5, 0.6, 0.3);
+                    const lockBody = new THREE.Mesh(lockBodyGeometry, lockMaterial);
+                    lockBody.position.y = -0.5;
+                    group.add(lockBody);
+                } else {
+                    // READY - Load actual parts!
+                    const parts = capsuleData.parts || [];
+                    
+                    for (let i = 0; i < parts.length; i++) {
+                        const part = parts[i];
+                        const svgData = allSvgPaths.find(svg => svg.id === part.svgId);
+                        
+                        if (svgData) {
+                            const color = colorPalette[i % colorPalette.length];
+                            const partMesh = await createShapeFromSVG(svgData, color);
+                            
+                            // Apply saved transformations
+                            if (part.position) {
+                                partMesh.position.set(
+                                    part.position.x * 0.02,
+                                    part.position.y * 0.02,
+                                    part.position.z * 0.02
+                                );
+                            }
+                            if (part.rotation) {
+                                partMesh.rotation.set(
+                                    part.rotation.x,
+                                    part.rotation.y,
+                                    part.rotation.z
+                                );
+                            }
+                            if (part.scale) {
+                                partMesh.scale.multiplyScalar(part.scale.x * 0.3);
+                            }
+                            
+                            group.add(partMesh);
+                        }
+                    }
+                }
+
+                // Label platform
+                const labelGeometry = new THREE.BoxGeometry(2, 0.1, 2);
+                const labelMaterial = new THREE.MeshStandardMaterial({
+                    color: isLocked ? 0xc4a7e0 : 0xffffff,
+                    metalness: 0.5,
+                    roughness: 0.5
+                });
+                const label = new THREE.Mesh(labelGeometry, labelMaterial);
+                label.position.y = -2;
+                label.receiveShadow = true;
+                label.castShadow = true;
+                group.add(label);
+
+                group.position.set(x, 1, z);
+                group.userData.capsuleData = capsuleData;
+                group.userData.index = index;
+                group.userData.isLocked = isLocked;
+                
+                scene.add(group);
+                capsuleObjects.push(group);
+
+                group.userData.floatOffset = Math.random() * Math.PI * 2;
+            }
+        }
+
+        loadCapsules();
+
+        // Raycaster for selection
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
-        let selectedCapsule = null;
-        
-        // --- DATA & HELPER FUNCTIONS ---
 
-        function getCapsuleColor(openDate) {
-            const now = new Date();
-            const isOpen = new Date(openDate) <= now;
-            
-            if (isOpen) {
-                return { color: 0x44ff44, emissive: 0x008800 }; // Bright Green (Open)
-            } else {
-                // Determine sealed color based on time remaining (simple stages)
-                const diff = new Date(openDate) - now;
-                const year = 365 * 24 * 60 * 60 * 1000;
+        canvas.addEventListener('click', (event) => {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(capsuleObjects, true);
+
+            if (intersects.length > 0) {
+                let object = intersects[0].object;
+                while (object.parent && !capsuleObjects.includes(object)) {
+                    object = object.parent;
+                }
                 
-                if (diff < year / 4) { // Opening soon (3 months)
-                    return { color: 0xffaa00, emissive: 0x995500 }; // Orange/Yellow (Soon)
-                } else {
-                    return { color: 0x8888aa, emissive: 0x333344 }; // Gray/Purple (Sealed)
+                if (capsuleObjects.includes(object)) {
+                    if (object.userData.isLocked) {
+                        showLockedMessage(object.userData.capsuleData);
+                    } else {
+                        showCapsuleInfo(object.userData.capsuleData);
+                    }
                 }
             }
-        }
-        
-        // Custom Capsule Geometry (Mimics the simple shapes in the image)
-        function createCapsule(capsuleData, index) {
-            // Using Cylinder for simplicity, resembles the look in the screenshot
-            const colors = getCapsuleColor(capsuleData.openDate);
-            
-            const geometry = new THREE.CylinderGeometry(15, 15, 60, 32);
-            const material = new THREE.MeshPhongMaterial({
-                color: colors.color,
-                emissive: colors.emissive,
-                emissiveIntensity: 0.5,
-                shininess: 100
-            });
-            
-            const capsuleMesh = new THREE.Mesh(geometry, material);
+        });
 
-            // Positioning in a rough circle/grid
-            const angle = index * (Math.PI * 2 / 10) + Math.random() * 0.5; 
-            const radius = 80 + Math.random() * 20; 
-            
-            capsuleMesh.position.x = Math.cos(angle) * radius;
-            capsuleMesh.position.z = Math.sin(angle) * radius;
-            capsuleMesh.position.y = -15 + Math.random() * 5; 
+        // Rotation controls
+        let targetRotation = 0;
+        let currentRotation = 0;
 
-            // Store capsule data in the mesh for interaction
-            capsuleMesh.userData = capsuleData;
-            
-            scene.add(capsuleMesh);
-        }
+        document.getElementById('rotate-left').addEventListener('click', () => {
+            targetRotation += Math.PI / 4;
+        });
 
-        // --- MAIN LOAD FUNCTION ---
+        document.getElementById('rotate-right').addEventListener('click', () => {
+            targetRotation -= Math.PI / 4;
+        });
 
-        function renderGallery3D() {
-            const capsules = JSON.parse(localStorage.getItem('timeCapsules') || '[]');
-            document.getElementById('status-info').textContent = `Total Capsules: ${capsules.length}. Drag to rotate.`;
-            
-            if (capsules.length === 0) {
-                 const message = new THREE.Mesh(
-                    new THREE.PlaneGeometry(10, 10),
-                    new THREE.MeshBasicMaterial({ color: 0xffffff })
-                 );
-                 // Placeholder for "No Capsules" message in 3D space
-                 // For now, rely on the overlay text.
-                 return;
-            }
+        // Show locked capsule message
+        function showLockedMessage(capsuleData) {
+            const panel = document.getElementById('info-panel');
+            const detail = document.getElementById('capsule-detail');
 
-            capsules.forEach((capsule, index) => {
-                createCapsule(capsule, index);
-            });
-        }
-        
-        // --- INTERACTION ---
-
-        function getMousePosition(event) {
-            const rect = canvas.getBoundingClientRect();
-            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-            mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-        }
-
-        function selectCapsule(capsule) {
-            selectedCapsule = capsule;
+            const openDate = new Date(capsuleData.openDate);
+            const createdDate = new Date(capsuleData.createdDate);
             const now = new Date();
-            const openDate = new Date(capsule.openDate);
-            const isOpen = openDate <= now;
 
-            document.getElementById('panel-name').textContent = capsule.name;
-            document.getElementById('panel-status').textContent = isOpen ? "🔓 Ready to Open" : "🔒 Sealed";
-            document.getElementById('panel-status').style.color = isOpen ? '#ff4444' : '#00ff88';
-            document.getElementById('panel-date').textContent = `Open Date: ${openDate.toLocaleDateString()}`;
-            document.getElementById('info-panel').style.display = 'block';
+            const diff = openDate - now;
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const years = Math.floor(days / 365);
+            const months = Math.floor((days % 365) / 30);
+            const finalDays = (days % 365) % 30;
+
+            let countdown = '';
+            if (years > 0) countdown += `${years} year${years > 1 ? 's' : ''} `;
+            if (months > 0) countdown += `${months} month${months > 1 ? 's' : ''} `;
+            countdown += `${finalDays} day${finalDays !== 1 ? 's' : ''}`;
+
+            detail.innerHTML = `
+                <div style="text-align: center; padding: 40px 0;">
+                    <div style="font-size: 80px; margin-bottom: 20px;">🔒</div>
+                    <h2>${capsuleData.name}</h2>
+                    <div class="date-info">Created ${createdDate.toLocaleDateString()}</div>
+                </div>
+
+                <div class="countdown-display" style="border-color: #ffaa00; background: rgba(255, 170, 0, 0.1);">
+                    <div class="countdown-label" style="color: #ffaa00;">Locked Until</div>
+                    <div class="countdown-value" style="color: #ffaa00;">${countdown}</div>
+                </div>
+
+                <div class="detail-section">
+                    <div class="detail-label">Open Date</div>
+                    <div class="detail-value">${openDate.toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                    })}</div>
+                </div>
+
+                <div style="background: rgba(255, 170, 0, 0.1); padding: 20px; border-radius: 12px; border: 1px solid rgba(255, 170, 0, 0.3); margin-top: 30px;">
+                    <div style="font-size: 14px; color: rgba(255, 255, 255, 0.8); line-height: 1.6; text-align: center;">
+                        ⏳ This time capsule is still sealed.<br>
+                        Come back on the open date to view its contents!
+                    </div>
+                </div>
+
+                <button class="delete-capsule-btn control-btn" style="width: 100%; margin-top: 20px; background: #ff4444; border: none; padding: 15px;" data-capsule-name="${capsuleData.name}">
+                    Delete Capsule
+                </button>
+            `;
+
+            panel.classList.add('active');
         }
 
-        function deselectCapsule() {
-            selectedCapsule = null;
-            document.getElementById('info-panel').style.display = 'none';
+        // Show capsule info panel
+        function showCapsuleInfo(capsuleData) {
+            const panel = document.getElementById('info-panel');
+            const detail = document.getElementById('capsule-detail');
+
+            const openDate = new Date(capsuleData.openDate);
+            const createdDate = new Date(capsuleData.createdDate);
+
+            detail.innerHTML = `
+                <h2>${capsuleData.name}</h2>
+                <div class="date-info">Created ${createdDate.toLocaleDateString()}</div>
+
+                <div class="countdown-display" style="border-color: #00ff88;">
+                    <div class="countdown-label">Ready to Open!</div>
+                    <div class="countdown-value">🎉</div>
+                </div>
+
+                <div class="detail-section">
+                    <div class="detail-label">Open Date</div>
+                    <div class="detail-value">${openDate.toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                    })}</div>
+                </div>
+
+                <div class="detail-section">
+                    <div class="detail-label">Total Parts</div>
+                    <div class="detail-value">${capsuleData.parts.length} piece${capsuleData.parts.length !== 1 ? 's' : ''}</div>
+                </div>
+
+                ${capsuleData.futureMessage ? `
+                    <div class="detail-section">
+                        <div class="detail-label">Message to Future Self</div>
+                        <div class="detail-value">${capsuleData.futureMessage}</div>
+                    </div>
+                ` : ''}
+
+                <button class="open-capsule-btn control-btn primary" style="width: 100%; margin-top: 20px;" data-capsule-name="${capsuleData.name}">
+                    📦 Open Capsule
+                </button>
+                <button class="share-capsule-btn control-btn" style="width: 100%; margin-top: 10px; background: #00ff88; color: #000; border: none; padding: 15px;" data-capsule-name="${capsuleData.name}">
+                    🔗 Share Capsule
+                </button>
+                <button class="delete-capsule-btn control-btn" style="width: 100%; margin-top: 10px; background: #ff4444; border: none; padding: 15px;" data-capsule-name="${capsuleData.name}">
+                    🗑️ Delete Capsule
+                </button>
+            `;
+
+            panel.classList.add('active');
         }
-        
-        // Mouse Down for Rotation or Selection
-        canvas.addEventListener('mousedown', (e) => {
-            getMousePosition(e);
+
+        window.closePanel = function() {
+            document.getElementById('info-panel').classList.remove('active');
+        };
+
+        window.openCapsule = function(name) {
+            const capsules = JSON.parse(localStorage.getItem('timeCapsules') || '[]');
+            const capsule = capsules.find(c => c.name === name);
             
-            raycaster.setFromCamera(mouse, camera);
-            const intersects = raycaster.intersectObjects(scene.children, true).filter(i => i.object.userData.name !== 'ground');
+            if (!capsule) {
+                alert('Capsule not found!');
+                return;
+            }
             
-            if (intersects.length > 0 && intersects[0].object.userData.id) {
-                // Capsule selected
-                selectCapsule(intersects[0].object.userData);
-            } else {
-                // Start rotation
-                deselectCapsule();
-                isDragging = true;
-                previousMousePosition = { x: e.clientX, y: e.clientY };
+            // Create ZIP file
+            const zip = new JSZip();
+            
+            // Add capsule info
+            const infoText = `Time Capsule: ${capsule.name}
+Created: ${new Date(capsule.createdDate).toLocaleDateString()}
+Opened: ${new Date().toLocaleDateString()}
+Message to Future Self: ${capsule.futureMessage || 'None'}
+
+Total Parts: ${capsule.parts.length}
+`;
+            zip.file('capsule-info.txt', infoText);
+            
+            // Add each part's content
+            capsule.parts.forEach((part, index) => {
+                if (part.contentData) {
+                    const contentData = part.contentData;
+                    
+                    if (contentData.type === 'text') {
+                        zip.file(`part-${index + 1}-text.txt`, contentData.content || 'Empty');
+                    } else if (contentData.type === 'image') {
+                        const base64Data = contentData.content.split(',')[1];
+                        zip.file(`part-${index + 1}-image.png`, base64Data, {base64: true});
+                    } else if (contentData.type === 'drawing') {
+                        const base64Data = contentData.content.split(',')[1];
+                        zip.file(`part-${index + 1}-drawing.png`, base64Data, {base64: true});
+                    }
+                }
+            });
+            
+            // Generate and download ZIP
+            zip.generateAsync({type: 'blob'}).then(function(content) {
+                const url = URL.createObjectURL(content);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${capsule.name.replace(/[^a-z0-9]/gi, '_')}-${new Date().getTime()}.zip`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                alert(`🎉 Time Capsule "${name}" opened!\n\nYour memories have been downloaded as a ZIP file.`);
+            });
+        };
+
+        window.deleteCapsule = function(name) {
+            console.log('deleteCapsule called for:', name);
+            
+            const capsules = JSON.parse(localStorage.getItem('timeCapsules') || '[]');
+            const filteredCapsules = capsules.filter(c => c.name !== name);
+            localStorage.setItem('timeCapsules', JSON.stringify(filteredCapsules));
+
+            closePanel();
+            location.reload();
+        };
+
+        // Share functionality
+        let currentShareCapsule = null;
+
+        window.shareCapsule = function(name) {
+            const capsules = JSON.parse(localStorage.getItem('timeCapsules') || '[]');
+            const capsule = capsules.find(c => c.name === name);
+            
+            if (!capsule) {
+                alert('Capsule not found!');
+                return;
+            }
+
+            currentShareCapsule = capsule;
+
+            // Encode capsule data to base64 for URL
+            const capsuleJSON = JSON.stringify(capsule);
+            const base64Data = btoa(unescape(encodeURIComponent(capsuleJSON)));
+            
+            // Create share URL
+            const shareURL = `${window.location.origin}${window.location.pathname}?shared=${base64Data}`;
+            
+            document.getElementById('share-url').value = shareURL;
+            document.getElementById('share-modal').style.display = 'flex';
+        };
+
+        window.closeShareModal = function() {
+            document.getElementById('share-modal').style.display = 'none';
+        };
+
+        window.copyShareLink = function() {
+            const urlInput = document.getElementById('share-url');
+            urlInput.select();
+            document.execCommand('copy');
+            alert('✅ Link copied to clipboard!');
+        };
+
+        window.shareViaEmail = function() {
+            const url = document.getElementById('share-url').value;
+            const subject = encodeURIComponent(`Check out my Time Capsule: ${currentShareCapsule.name}`);
+            const body = encodeURIComponent(`I've created a time capsule and I'd like to share it with you!\n\nOpen it here: ${url}`);
+            window.open(`mailto:?subject=${subject}&body=${body}`);
+        };
+
+        window.shareViaTwitter = function() {
+            const url = document.getElementById('share-url').value;
+            const text = encodeURIComponent(`Check out my Time Capsule: ${currentShareCapsule.name} ⏰`);
+            window.open(`https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(url)}`);
+        };
+
+        window.shareViaFacebook = function() {
+            const url = document.getElementById('share-url').value;
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`);
+        };
+
+        window.shareViaWhatsApp = function() {
+            const url = document.getElementById('share-url').value;
+            const text = encodeURIComponent(`Check out my Time Capsule: ${currentShareCapsule.name} ⏰\n${url}`);
+            window.open(`https://wa.me/?text=${text}`);
+        };
+
+        window.downloadCapsuleJSON = function() {
+            const dataStr = JSON.stringify(currentShareCapsule, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${currentShareCapsule.name.replace(/[^a-z0-9]/gi, '_')}_capsule.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            alert('✅ Capsule downloaded as JSON file!');
+        };
+
+        // Check if page loaded with shared capsule
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const sharedData = urlParams.get('shared');
+            
+            if (sharedData) {
+                try {
+                    const capsuleJSON = decodeURIComponent(escape(atob(sharedData)));
+                    const sharedCapsule = JSON.parse(capsuleJSON);
+                    
+                    // Show import dialog
+                    if (confirm(`📦 Import shared time capsule: "${sharedCapsule.name}"?\n\nThis will add it to your collection.`)) {
+                        const capsules = JSON.parse(localStorage.getItem('timeCapsules') || '[]');
+                        
+                        // Check if already exists
+                        if (capsules.find(c => c.name === sharedCapsule.name)) {
+                            alert('⚠️ A capsule with this name already exists!');
+                        } else {
+                            capsules.push(sharedCapsule);
+                            localStorage.setItem('timeCapsules', JSON.stringify(capsules));
+                            alert('✅ Time capsule imported successfully!');
+                            location.href = window.location.pathname; // Remove query params and reload
+                        }
+                    }
+                } catch (e) {
+                    console.error('Failed to import shared capsule:', e);
+                    alert('❌ Invalid share link!');
+                }
             }
         });
 
-        // Mouse Move for Rotation
-        canvas.addEventListener('mousemove', (e) => {
-            if (!isDragging) return;
-
-            const deltaMove = {
-                x: e.clientX - previousMousePosition.x,
-                y: e.clientY - previousMousePosition.y
-            };
-            
-            targetRotation += deltaMove.x * 0.005;
-            
-            previousMousePosition = { x: e.clientX, y: e.clientY };
-        });
-
-        // Mouse Up to Stop Rotation
-        canvas.addEventListener('mouseup', () => {
-            isDragging = false;
-        });
-
-        // Button to navigate to the detailed view
-        document.getElementById('panel-view-btn').addEventListener('click', () => {
-            if (selectedCapsule) {
-                // Navigate to the complex 3D view (timecapsule-view.html)
-                window.location.href = `timecapsule-view.html?id=${selectedCapsule.id}`;
-            }
-        });
-        
-        // --- ANIMATION LOOP ---
+        // Animation loop
         function animate() {
             requestAnimationFrame(animate);
 
-            currentRotation += (targetRotation - currentRotation) * 0.1;
-            scene.rotation.y = currentRotation;
+            const time = Date.now() * 0.001;
+
+            currentRotation += (targetRotation - currentRotation) * 0.05;
+            
+            capsuleObjects.forEach((capsule, i) => {
+                const floatY = Math.sin(time + capsule.userData.floatOffset) * 0.2;
+                capsule.position.y = 1 + floatY;
+
+                capsule.rotation.y = time * 0.5;
+
+                const baseAngle = (i / capsuleObjects.length) * Math.PI * 2;
+                const angle = baseAngle + currentRotation;
+                capsule.position.x = Math.cos(angle) * radius;
+                capsule.position.z = Math.sin(angle) * radius;
+
+                const scale = 1 + Math.sin(time * 2 + i) * 0.05;
+                capsule.scale.setScalar(scale);
+            });
 
             renderer.render(scene, camera);
         }
 
-        renderGallery3D();
         animate();
+
+        // Event delegation for dynamically created buttons
+        document.getElementById('info-panel').addEventListener('click', (e) => {
+            if (e.target.classList.contains('delete-capsule-btn')) {
+                const capsuleName = e.target.getAttribute('data-capsule-name');
+                if (capsuleName) {
+                    deleteCapsule(capsuleName);
+                }
+            }
+            if (e.target.classList.contains('open-capsule-btn')) {
+                const capsuleName = e.target.getAttribute('data-capsule-name');
+                if (capsuleName) {
+                    openCapsule(capsuleName);
+                }
+            }
+            if (e.target.classList.contains('share-capsule-btn')) {
+                const capsuleName = e.target.getAttribute('data-capsule-name');
+                if (capsuleName) {
+                    shareCapsule(capsuleName);
+                }
+            }
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
     </script>
 </body>
 </html>
