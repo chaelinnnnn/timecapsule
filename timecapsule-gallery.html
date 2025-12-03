@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -518,6 +519,13 @@
                 group.userData.index = index;
                 group.userData.isLocked = isLocked;
                 
+                // Set initial scale based on locked status
+                if (isLocked) {
+                    group.scale.setScalar(0.6);  // Locked 캡슐은 작게
+                } else {
+                    group.scale.setScalar(2.0);  // Ready 캡슐은 크게
+                }
+                
                 scene.add(group);
                 capsuleObjects.push(group);
 
@@ -883,8 +891,10 @@ Total Parts: ${capsule.parts.length}
                 capsule.position.x = Math.cos(angle) * radius;
                 capsule.position.z = Math.sin(angle) * radius;
 
-                const scale = 1 + Math.sin(time * 2 + i) * 0.05;
-                capsule.scale.setScalar(scale);
+                // 기본 스케일 유지하면서 애니메이션 적용
+                const baseScale = capsule.userData.isLocked ? 0.6 : 2.0;
+                const animScale = 1 + Math.sin(time * 2 + i) * 0.05;
+                capsule.scale.setScalar(baseScale * animScale);
             });
 
             renderer.render(scene, camera);
