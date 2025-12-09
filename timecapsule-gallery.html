@@ -760,8 +760,51 @@
 
         // Import JSON functionality
         document.getElementById('import-json-btn').addEventListener('click', () => {
-            document.getElementById('json-file-input').click();
+            const choice = confirm('Import Capsule:\n\nOK = Select JSON file\nCancel = Paste JSON text');
+            
+            if (choice) {
+                // Select file
+                document.getElementById('json-file-input').click();
+            } else {
+                // Paste text
+                const jsonText = prompt('Paste the JSON capsule data here:');
+                if (!jsonText) return;
+                
+                try {
+                    const importedCapsule = JSON.parse(jsonText);
+                    importCapsule(importedCapsule);
+                } catch (error) {
+                    console.error('Import error:', error);
+                    alert('❌ Invalid JSON format! Please check the data and try again.');
+                }
+            }
         });
+
+        function importCapsule(importedCapsule) {
+            // Validate capsule structure
+            if (!importedCapsule.name || !importedCapsule.openDate) {
+                alert('❌ Invalid capsule format!');
+                return;
+            }
+
+            const capsules = JSON.parse(localStorage.getItem('timeCapsules') || '[]');
+            
+            // Check if already exists
+            if (capsules.find(c => c.name === importedCapsule.name)) {
+                if (!confirm(`A capsule named "${importedCapsule.name}" already exists. Replace it?`)) {
+                    return;
+                }
+                // Remove old one
+                const index = capsules.findIndex(c => c.name === importedCapsule.name);
+                capsules.splice(index, 1);
+            }
+
+            capsules.push(importedCapsule);
+            localStorage.setItem('timeCapsules', JSON.stringify(capsules));
+            
+            alert(`✅ Time capsule "${importedCapsule.name}" imported successfully!`);
+            location.reload();
+        }
 
         document.getElementById('json-file-input').addEventListener('change', (e) => {
             const file = e.target.files[0];
@@ -771,33 +814,10 @@
             reader.onload = (event) => {
                 try {
                     const importedCapsule = JSON.parse(event.target.result);
-                    
-                    // Validate capsule structure
-                    if (!importedCapsule.name || !importedCapsule.openDate) {
-                        alert('Invalid capsule file format!');
-                        return;
-                    }
-
-                    const capsules = JSON.parse(localStorage.getItem('timeCapsules') || '[]');
-                    
-                    // Check if already exists
-                    if (capsules.find(c => c.name === importedCapsule.name)) {
-                        if (!confirm(`A capsule named "${importedCapsule.name}" already exists. Replace it?`)) {
-                            return;
-                        }
-                        // Remove old one
-                        const index = capsules.findIndex(c => c.name === importedCapsule.name);
-                        capsules.splice(index, 1);
-                    }
-
-                    capsules.push(importedCapsule);
-                    localStorage.setItem('timeCapsules', JSON.stringify(capsules));
-                    
-                    alert(`✅ Time capsule "${importedCapsule.name}" imported successfully!`);
-                    location.reload();
+                    importCapsule(importedCapsule);
                 } catch (error) {
                     console.error('Import error:', error);
-                    alert('Failed to import capsule. Please check the file format.');
+                    alert('❌ Failed to import capsule. Please check the file format.');
                 }
             };
             reader.readAsText(file);
@@ -926,26 +946,60 @@ Total Parts: ${capsule.parts.length}
         };
 
         window.shareViaEmail = function() {
-            // Download JSON file
-            const dataStr = JSON.stringify(currentShareCapsule, null, 2);
-            const blob = new Blob([dataStr], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `${currentShareCapsule.name.replace(/[^a-z0-9]/gi, '_')}_capsule.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            const capsuleJSON = JSON.stringify(currentShareCapsule);
+            const jsonSize = new Blob([capsuleJSON]).size;
             
-            // Open email with instructions
-            const subject = encodeURIComponent(`Time Capsule: ${currentShareCapsule.name}`);
-            const body = encodeURIComponent(`I've created a time capsule and I'd like to share it with you!\n\nPlease find the attached JSON file and import it at:\n${window.location.origin}${window.location.pathname}\n\nClick "Import JSON" or drag & drop the file to view the capsule.`);
-            
-            setTimeout(() => {
+            // If JSON is small enough for email (< 10KB), include in body
+            if (jsonSize < 10000) {
+                const subject = encodeURIComponent(`Time Capsule: ${currentShareCapsule.name}`);
+                const body = encodeURIComponent(
+                    `I've created a time capsule and I'd like to share it with you!\n\n` +
+                    `To import:\n` +
+                    `1. Copy the JSON data below\n` +
+                    `2. Go to: ${window.location.origin}${window.location.pathname}\n` +
+                    `3. Click "📥 Import JSON" button\n` +
+                    `4. Click "Paste JSON Text" and paste the data\n\n` +
+                    `=== CAPSULE DATA (Copy everything below) ===\n` +
+                    capsuleJSON
+                );
+                
+                // Also copy to clipboard
+                navigator.clipboard.writeText(capsuleJSON).then(() => {
+                    alert('✅ Capsule data copied to clipboard!\n\nOpening email... The data is also included in the email body.');
+                }).catch(() => {
+                    alert('Opening email with capsule data in body...');
+                });
+                
                 window.open(`mailto:?subject=${subject}&body=${body}`);
-                alert('✅ JSON file downloaded!\n\nPlease attach the file to your email before sending.');
-            }, 500);
+            } else {
+                // Large file - download JSON
+                const dataStr = JSON.stringify(currentShareCapsule, null, 2);
+                const blob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${currentShareCapsule.name.replace(/[^a-z0-9]/gi, '_')}_capsule.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                const subject = encodeURIComponent(`Time Capsule: ${currentShareCapsule.name}`);
+                const body = encodeURIComponent(
+                    `I've created a time capsule and I'd like to share it with you!\n\n` +
+                    `The capsule file has been downloaded. Please attach the JSON file to this email.\n\n` +
+                    `To import:\n` +
+                    `1. Download the attached JSON file\n` +
+                    `2. Go to: ${window.location.origin}${window.location.pathname}\n` +
+                    `3. Click "📥 Import JSON" button\n` +
+                    `4. Select the JSON file`
+                );
+                
+                setTimeout(() => {
+                    window.open(`mailto:?subject=${subject}&body=${body}`);
+                    alert('📥 JSON file downloaded!\n\nPlease attach the file to your email before sending.');
+                }, 500);
+            }
         };
 
         window.shareViaTwitter = function() {
