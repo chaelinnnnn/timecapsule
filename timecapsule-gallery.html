@@ -947,59 +947,50 @@ Total Parts: ${capsule.parts.length}
 
         window.shareViaEmail = function() {
             const capsuleJSON = JSON.stringify(currentShareCapsule);
-            const jsonSize = new Blob([capsuleJSON]).size;
             
-            // If JSON is small enough for email (< 10KB), include in body
-            if (jsonSize < 10000) {
+            // Always download JSON file
+            const dataStr = JSON.stringify(currentShareCapsule, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${currentShareCapsule.name.replace(/[^a-z0-9]/gi, '_')}_capsule.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            // Copy JSON to clipboard
+            let clipboardSuccess = false;
+            navigator.clipboard.writeText(capsuleJSON).then(() => {
+                clipboardSuccess = true;
+            }).catch(err => {
+                console.log('Clipboard failed:', err);
+            });
+            
+            // Open email with simple instructions
+            setTimeout(() => {
                 const subject = encodeURIComponent(`Time Capsule: ${currentShareCapsule.name}`);
                 const body = encodeURIComponent(
-                    `I've created a time capsule and I'd like to share it with you!\n\n` +
-                    `To import:\n` +
-                    `1. Copy the JSON data below\n` +
-                    `2. Go to: ${window.location.origin}${window.location.pathname}\n` +
-                    `3. Click "📥 Import JSON" button\n` +
-                    `4. Click "Paste JSON Text" and paste the data\n\n` +
-                    `=== CAPSULE DATA (Copy everything below) ===\n` +
-                    capsuleJSON
+                    `I've created a time capsule for you!\n\n` +
+                    `📎 ATTACHMENT: Please attach the downloaded JSON file to this email.\n\n` +
+                    `📋 OR: The capsule data is copied to my clipboard - I'll paste it below:\n\n` +
+                    `[Paste capsule data here]\n\n` +
+                    `---\n` +
+                    `To open:\n` +
+                    `1. Go to: ${window.location.origin}${window.location.pathname}\n` +
+                    `2. Click "📥 Import JSON"\n` +
+                    `3. Either select the file OR paste the data`
                 );
-                
-                // Also copy to clipboard
-                navigator.clipboard.writeText(capsuleJSON).then(() => {
-                    alert('✅ Capsule data copied to clipboard!\n\nOpening email... The data is also included in the email body.');
-                }).catch(() => {
-                    alert('Opening email with capsule data in body...');
-                });
                 
                 window.open(`mailto:?subject=${subject}&body=${body}`);
-            } else {
-                // Large file - download JSON
-                const dataStr = JSON.stringify(currentShareCapsule, null, 2);
-                const blob = new Blob([dataStr], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `${currentShareCapsule.name.replace(/[^a-z0-9]/gi, '_')}_capsule.json`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
                 
-                const subject = encodeURIComponent(`Time Capsule: ${currentShareCapsule.name}`);
-                const body = encodeURIComponent(
-                    `I've created a time capsule and I'd like to share it with you!\n\n` +
-                    `The capsule file has been downloaded. Please attach the JSON file to this email.\n\n` +
-                    `To import:\n` +
-                    `1. Download the attached JSON file\n` +
-                    `2. Go to: ${window.location.origin}${window.location.pathname}\n` +
-                    `3. Click "📥 Import JSON" button\n` +
-                    `4. Select the JSON file`
-                );
-                
-                setTimeout(() => {
-                    window.open(`mailto:?subject=${subject}&body=${body}`);
-                    alert('📥 JSON file downloaded!\n\nPlease attach the file to your email before sending.');
-                }, 500);
-            }
+                if (clipboardSuccess) {
+                    alert('✅ Success!\n\n1. JSON file downloaded\n2. Data copied to clipboard\n\nNow:\n• Attach the file to email, OR\n• Paste (Ctrl+V) the data in email body');
+                } else {
+                    alert('✅ JSON file downloaded!\n\nPlease attach the file to your email.\n\n(Note: Clipboard copy failed - file attachment is required)');
+                }
+            }, 300);
         };
 
         window.shareViaTwitter = function() {
