@@ -262,28 +262,19 @@
         <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px; padding: 40px; max-width: 500px; width: 90%; position: relative;">
             <button onclick="closeShareModal()" style="position: absolute; top: 15px; right: 20px; background: none; border: none; color: white; font-size: 30px; cursor: pointer;">×</button>
             
-            <h2 style="color: white; margin-bottom: 20px; font-size: 28px;">Share Time Capsule</h2>
+            <h2 style="color: white; margin-bottom: 15px; font-size: 28px;">Share Time Capsule</h2>
+            <p style="color: rgba(255,255,255,0.8); margin-bottom: 30px; font-size: 14px;">Share your memories with friends and family</p>
             
-            <div style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 12px; margin-bottom: 20px;">
-                <label style="color: rgba(255,255,255,0.8); font-size: 12px; display: block; margin-bottom: 8px;">Share Link</label>
-                <div style="display: flex; gap: 10px;">
-                    <input id="share-url" readonly style="flex: 1; padding: 12px; border-radius: 8px; border: none; font-size: 12px; background: white; color: #000;" value="">
-                    <button onclick="copyShareLink()" style="padding: 12px 20px; background: #00ff88; color: #000; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">Copy</button>
-                </div>
-            </div>
-
-            <div style="margin-bottom: 20px;">
-                <label style="color: rgba(255,255,255,0.8); font-size: 14px; display: block; margin-bottom: 12px;">Share via</label>
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
-                    <button onclick="shareViaEmail()" style="padding: 12px; background: rgba(255,255,255,0.1); color: white; border: 2px solid rgba(255,255,255,0.3); border-radius: 8px; cursor: pointer; font-weight: 600;">Email</button>
-                    <button onclick="shareViaTwitter()" style="padding: 12px; background: rgba(255,255,255,0.1); color: white; border: 2px solid rgba(255,255,255,0.3); border-radius: 8px; cursor: pointer; font-weight: 600;">Twitter</button>
-                    <button onclick="shareViaFacebook()" style="padding: 12px; background: rgba(255,255,255,0.1); color: white; border: 2px solid rgba(255,255,255,0.3); border-radius: 8px; cursor: pointer; font-weight: 600;">Facebook</button>
-                    <button onclick="shareViaWhatsApp()" style="padding: 12px; background: rgba(255,255,255,0.1); color: white; border: 2px solid rgba(255,255,255,0.3); border-radius: 8px; cursor: pointer; font-weight: 600;">WhatsApp</button>
-                </div>
-            </div>
-
-            <div style="border-top: 1px solid rgba(255,255,255,0.2); padding-top: 20px;">
-                <button onclick="downloadCapsuleJSON()" style="width: 100%; padding: 15px; background: rgba(255,255,255,0.1); color: white; border: 2px solid rgba(255,255,255,0.3); border-radius: 8px; cursor: pointer; font-weight: 600;">Download as JSON File</button>
+            <button onclick="shareViaEmail()" style="width: 100%; padding: 18px; background: #00ff88; color: #000; border: none; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 16px; margin-bottom: 15px;">
+                📧 Download & Share via Email
+            </button>
+            
+            <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; font-size: 13px; color: rgba(255,255,255,0.7);">
+                <strong style="color: white;">How it works:</strong><br>
+                1. ZIP file with all contents will download<br>
+                2. Email app will open<br>
+                3. Attach the ZIP file to your email<br>
+                4. Send!
             </div>
         </div>
     </div>
@@ -946,51 +937,76 @@ Total Parts: ${capsule.parts.length}
         };
 
         window.shareViaEmail = function() {
-            const capsuleJSON = JSON.stringify(currentShareCapsule);
+            // Get current capsule
+            const capsule = currentShareCapsule;
             
-            // Always download JSON file
-            const dataStr = JSON.stringify(currentShareCapsule, null, 2);
-            const blob = new Blob([dataStr], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `${currentShareCapsule.name.replace(/[^a-z0-9]/gi, '_')}_capsule.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            // Create ZIP file with contents
+            const zip = new JSZip();
             
-            // Copy JSON to clipboard
-            let clipboardSuccess = false;
-            navigator.clipboard.writeText(capsuleJSON).then(() => {
-                clipboardSuccess = true;
-            }).catch(err => {
-                console.log('Clipboard failed:', err);
+            // Add capsule info
+            const infoText = `Time Capsule: ${capsule.name}
+Created: ${new Date(capsule.createdDate).toLocaleDateString()}
+Open Date: ${new Date(capsule.openDate).toLocaleDateString()}
+Message to Future Self: ${capsule.futureMessage || 'None'}
+
+Total Parts: ${capsule.parts.length}
+
+=== HOW TO VIEW ===
+This ZIP contains all the memories from the time capsule!
+- Text files (.txt)
+- Images (.png)
+- Drawings (.png)
+`;
+            zip.file('README.txt', infoText);
+            
+            // Add each part's content
+            capsule.parts.forEach((part, index) => {
+                if (part.contentData) {
+                    const contentData = part.contentData;
+                    
+                    if (contentData.type === 'text') {
+                        zip.file(`part-${index + 1}-text.txt`, contentData.content || 'Empty');
+                    } else if (contentData.type === 'image') {
+                        const base64Data = contentData.content.split(',')[1];
+                        zip.file(`part-${index + 1}-image.png`, base64Data, {base64: true});
+                    } else if (contentData.type === 'drawing') {
+                        const base64Data = contentData.content.split(',')[1];
+                        zip.file(`part-${index + 1}-drawing.png`, base64Data, {base64: true});
+                    }
+                }
             });
             
-            // Open email with simple instructions
-            setTimeout(() => {
-                const subject = encodeURIComponent(`Time Capsule: ${currentShareCapsule.name}`);
-                const body = encodeURIComponent(
-                    `I've created a time capsule for you!\n\n` +
-                    `📎 ATTACHMENT: Please attach the downloaded JSON file to this email.\n\n` +
-                    `📋 OR: The capsule data is copied to my clipboard - I'll paste it below:\n\n` +
-                    `[Paste capsule data here]\n\n` +
-                    `---\n` +
-                    `To open:\n` +
-                    `1. Go to: ${window.location.origin}${window.location.pathname}\n` +
-                    `2. Click "📥 Import JSON"\n` +
-                    `3. Either select the file OR paste the data`
-                );
+            // Generate and download ZIP
+            zip.generateAsync({type: 'blob'}).then(function(content) {
+                const url = URL.createObjectURL(content);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `TimeCapsule_${capsule.name.replace(/[^a-z0-9]/gi, '_')}.zip`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
                 
-                window.open(`mailto:?subject=${subject}&body=${body}`);
-                
-                if (clipboardSuccess) {
-                    alert('✅ Success!\n\n1. JSON file downloaded\n2. Data copied to clipboard\n\nNow:\n• Attach the file to email, OR\n• Paste (Ctrl+V) the data in email body');
-                } else {
-                    alert('✅ JSON file downloaded!\n\nPlease attach the file to your email.\n\n(Note: Clipboard copy failed - file attachment is required)');
-                }
-            }, 300);
+                // Open email after short delay
+                setTimeout(() => {
+                    const subject = encodeURIComponent(`Time Capsule: ${capsule.name}`);
+                    const body = encodeURIComponent(
+                        `I've created a time capsule and I'd like to share it with you!\n\n` +
+                        `📎 Please find the attached ZIP file containing:\n` +
+                        `- Text messages\n` +
+                        `- Photos\n` +
+                        `- Drawings\n\n` +
+                        `Simply download the ZIP file and extract it to view all the memories!\n\n` +
+                        `---\n` +
+                        `Capsule Name: ${capsule.name}\n` +
+                        `Created: ${new Date(capsule.createdDate).toLocaleDateString()}\n` +
+                        `Parts: ${capsule.parts.length}`
+                    );
+                    
+                    window.open(`mailto:?subject=${subject}&body=${body}`);
+                    alert('✅ ZIP file downloaded!\n\nPlease attach the ZIP file to your email before sending.');
+                }, 300);
+            });
         };
 
         window.shareViaTwitter = function() {
