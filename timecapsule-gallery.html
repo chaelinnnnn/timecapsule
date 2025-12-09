@@ -844,14 +844,15 @@ Total Parts: ${capsule.parts.length}
             document.getElementById('share-url').value = 'Generating short link...';
             document.getElementById('share-modal').style.display = 'flex';
             
-            // Try to shorten URL with TinyURL
+            // Try to shorten URL with is.gd (CORS-friendly)
             try {
-                const response = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(longURL)}`);
+                const response = await fetch(`https://is.gd/create.php?format=simple&url=${encodeURIComponent(longURL)}`);
                 const shortURL = await response.text();
                 
-                if (shortURL && shortURL.startsWith('http')) {
+                if (shortURL && shortURL.startsWith('http') && !shortURL.includes('Error')) {
                     document.getElementById('share-url').value = shortURL;
                 } else {
+                    // Fallback: just use long URL
                     document.getElementById('share-url').value = longURL;
                 }
             } catch (error) {
