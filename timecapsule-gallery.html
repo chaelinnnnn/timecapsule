@@ -886,7 +886,7 @@ Total Parts: ${capsule.parts.length}
         // Share functionality
         let currentShareCapsule = null;
 
-        window.shareCapsule = async function(name) {
+        window.shareCapsule = function(name) {
             const capsules = JSON.parse(localStorage.getItem('timeCapsules') || '[]');
             const capsule = capsules.find(c => c.name === name);
             
@@ -896,33 +896,9 @@ Total Parts: ${capsule.parts.length}
             }
 
             currentShareCapsule = capsule;
-
-            // Encode capsule data to base64 for URL
-            const capsuleJSON = JSON.stringify(capsule);
-            const base64Data = btoa(unescape(encodeURIComponent(capsuleJSON)));
             
-            // Create share URL
-            const longURL = `${window.location.origin}${window.location.pathname}?shared=${base64Data}`;
-            
-            // Show modal with loading state
-            document.getElementById('share-url').value = 'Generating short link...';
+            // Show modal
             document.getElementById('share-modal').style.display = 'flex';
-            
-            // Try to shorten URL with is.gd (CORS-friendly)
-            try {
-                const response = await fetch(`https://is.gd/create.php?format=simple&url=${encodeURIComponent(longURL)}`);
-                const shortURL = await response.text();
-                
-                if (shortURL && shortURL.startsWith('http') && !shortURL.includes('Error')) {
-                    document.getElementById('share-url').value = shortURL;
-                } else {
-                    // Fallback: just use long URL
-                    document.getElementById('share-url').value = longURL;
-                }
-            } catch (error) {
-                console.error('Failed to shorten URL:', error);
-                document.getElementById('share-url').value = longURL;
-            }
         };
 
         window.closeShareModal = function() {
