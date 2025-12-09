@@ -873,8 +873,8 @@ Total Parts: ${capsule.parts.length}
 
         window.shareViaEmail = function() {
             const url = document.getElementById('share-url').value;
-            const subject = encodeURIComponent(`Check out my Time Capsule: ${currentShareCapsule.name}`);
-            const body = encodeURIComponent(`I've created a time capsule and I'd like to share it with you!\n\nOpen it here: ${url}`);
+            const subject = encodeURIComponent(`Time Capsule: ${currentShareCapsule.name}`);
+            const body = encodeURIComponent(`Open my time capsule:\n${url}`);
             window.open(`mailto:?subject=${subject}&body=${body}`);
         };
 
