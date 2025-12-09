@@ -245,8 +245,12 @@
         <button class="control-btn" id="zoom-in">+ Zoom In</button>
         <button class="control-btn" id="rotate-left">← Rotate</button>
         <button class="control-btn" id="rotate-right">Rotate →</button>
+        <button class="control-btn" id="import-json-btn" style="background: #667eea;">📥 Import JSON</button>
         <button class="control-btn primary" onclick="window.location.href='index.html'">+ New Capsule</button>
     </div>
+    
+    <input type="file" id="json-file-input" accept=".json" style="display: none;">
+
 
     <div class="capsule-info-panel" id="info-panel">
         <button class="panel-close" onclick="closePanel()">×</button>
@@ -754,6 +758,55 @@
             }
         };
 
+        // Import JSON functionality
+        document.getElementById('import-json-btn').addEventListener('click', () => {
+            document.getElementById('json-file-input').click();
+        });
+
+        document.getElementById('json-file-input').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    const importedCapsule = JSON.parse(event.target.result);
+                    
+                    // Validate capsule structure
+                    if (!importedCapsule.name || !importedCapsule.openDate) {
+                        alert('Invalid capsule file format!');
+                        return;
+                    }
+
+                    const capsules = JSON.parse(localStorage.getItem('timeCapsules') || '[]');
+                    
+                    // Check if already exists
+                    if (capsules.find(c => c.name === importedCapsule.name)) {
+                        if (!confirm(`A capsule named "${importedCapsule.name}" already exists. Replace it?`)) {
+                            return;
+                        }
+                        // Remove old one
+                        const index = capsules.findIndex(c => c.name === importedCapsule.name);
+                        capsules.splice(index, 1);
+                    }
+
+                    capsules.push(importedCapsule);
+                    localStorage.setItem('timeCapsules', JSON.stringify(capsules));
+                    
+                    alert(`✅ Time capsule "${importedCapsule.name}" imported successfully!`);
+                    location.reload();
+                } catch (error) {
+                    console.error('Import error:', error);
+                    alert('Failed to import capsule. Please check the file format.');
+                }
+            };
+            reader.readAsText(file);
+            
+            // Reset input
+            e.target.value = '';
+        });
+
+
         window.openCapsule = function(name) {
             const capsules = JSON.parse(localStorage.getItem('timeCapsules') || '[]');
             const capsule = capsules.find(c => c.name === name);
@@ -873,10 +926,26 @@ Total Parts: ${capsule.parts.length}
         };
 
         window.shareViaEmail = function() {
-            const url = document.getElementById('share-url').value;
+            // Download JSON file
+            const dataStr = JSON.stringify(currentShareCapsule, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${currentShareCapsule.name.replace(/[^a-z0-9]/gi, '_')}_capsule.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            // Open email with instructions
             const subject = encodeURIComponent(`Time Capsule: ${currentShareCapsule.name}`);
-            const body = encodeURIComponent(`Open my time capsule:\n${url}`);
-            window.open(`mailto:?subject=${subject}&body=${body}`);
+            const body = encodeURIComponent(`I've created a time capsule and I'd like to share it with you!\n\nPlease find the attached JSON file and import it at:\n${window.location.origin}${window.location.pathname}\n\nClick "Import JSON" or drag & drop the file to view the capsule.`);
+            
+            setTimeout(() => {
+                window.open(`mailto:?subject=${subject}&body=${body}`);
+                alert('✅ JSON file downloaded!\n\nPlease attach the file to your email before sending.');
+            }, 500);
         };
 
         window.shareViaTwitter = function() {
